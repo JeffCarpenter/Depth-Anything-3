@@ -20,6 +20,7 @@ Handles different types of inputs (image, images, colmap, video)
 import glob
 import os
 from typing import List, Tuple
+
 import cv2
 import numpy as np
 import typer
@@ -210,7 +211,7 @@ class VideoHandler(InputHandler):
         # Warn if requested FPS is higher than video FPS
         if fps > video_fps:
             typer.echo(
-                f"⚠️  Warning: Requested sampling FPS ({fps:.2f}) exceeds video FPS ({video_fps:.2f})",  # noqa: E501
+                f"⚠️  Warning: Requested sampling FPS ({fps:.2f}) exceeds video FPS ({video_fps:.2f})",
                 err=True,
             )
             typer.echo(
@@ -218,7 +219,9 @@ class VideoHandler(InputHandler):
                 err=True,
             )
 
-        typer.echo(f"Extracting frames at {actual_fps:.2f} FPS (every {frame_interval} frame(s))")
+        typer.echo(
+            f"Extracting frames at {actual_fps:.2f} FPS (every {frame_interval} frame(s))"
+        )
 
         # Create output directory
         frames_dir = os.path.join(output_dir, "input_images")

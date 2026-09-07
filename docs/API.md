@@ -30,7 +30,9 @@ Here are quick examples to get you started:
 from depth_anything_3.api import DepthAnything3
 
 # Initialize and run inference
-model = DepthAnything3.from_pretrained("depth-anything/DA3NESTED-GIANT-LARGE").to("cuda")
+model = DepthAnything3.from_pretrained("depth-anything/DA3NESTED-GIANT-LARGE").to(
+    "cuda"
+)
 prediction = model.inference(["image1.jpg", "image2.jpg"])
 ```
 
@@ -42,7 +44,7 @@ import numpy as np
 prediction = model.inference(
     image=["image1.jpg", "image2.jpg"],
     extrinsics=extrinsics_array,  # (N, 4, 4)
-    intrinsics=intrinsics_array   # (N, 3, 3)
+    intrinsics=intrinsics_array,  # (N, 3, 3)
 )
 ```
 
@@ -50,9 +52,7 @@ prediction = model.inference(
 ```python
 # Export depth data and 3D visualization
 prediction = model.inference(
-    image=image_paths,
-    export_dir="./output",
-    export_format="mini_npz-glb"
+    image=image_paths, export_dir="./output", export_format="mini_npz-glb"
 )
 ```
 
@@ -63,7 +63,7 @@ prediction = model.inference(
     image=image_paths,
     export_dir="./output",
     export_format="feat_vis",
-    export_feat_layers=[0, 1, 2]  # Export features from layers 0, 1, 2
+    export_feat_layers=[0, 1, 2],  # Export features from layers 0, 1, 2
 )
 ```
 
@@ -156,25 +156,25 @@ The primary inference method that processes images and returns depth predictions
 ```python
 prediction = model.inference(
     image=image_list,
-    extrinsics=extrinsics_array,      # Optional
-    intrinsics=intrinsics_array,      # Optional
-    align_to_input_ext_scale=True,   # Whether to align predicted poses to input scale
-    infer_gs=True,                   # Enable Gaussian branch for gs exports
-    use_ray_pose=False,              # Use ray-based pose estimation instead of camera decoder
+    extrinsics=extrinsics_array,  # Optional
+    intrinsics=intrinsics_array,  # Optional
+    align_to_input_ext_scale=True,  # Whether to align predicted poses to input scale
+    infer_gs=True,  # Enable Gaussian branch for gs exports
+    use_ray_pose=False,  # Use ray-based pose estimation instead of camera decoder
     ref_view_strategy="saddle_balanced",  # Reference view selection strategy
-    render_exts=render_extrinsics,    # Optional renders for gs_video
-    render_ixts=render_intrinsics,    # Optional renders for gs_video
-    render_hw=(height, width),        # Optional renders for gs_video
+    render_exts=render_extrinsics,  # Optional renders for gs_video
+    render_ixts=render_intrinsics,  # Optional renders for gs_video
+    render_hw=(height, width),  # Optional renders for gs_video
     process_res=504,
     process_res_method="upper_bound_resize",
-    export_dir="output_directory",    # Optional
+    export_dir="output_directory",  # Optional
     export_format="mini_npz",
-    export_feat_layers=[],            # List of layer indices to export features from
-    conf_thresh_percentile=40.0,      # Confidence threshold percentile for depth map in GLB export
-    num_max_points=1_000_000,         # Maximum number of points to export in GLB export
-    show_cameras=True,                # Whether to show cameras in GLB export
-    feat_vis_fps=15,                  # Frames per second for feature visualization in feat_vis export
-    export_kwargs={}                  # Optional, additional arguments to export functions. export_format:key:val, see 'Parameters/Export Parameters' for details
+    export_feat_layers=[],  # List of layer indices to export features from
+    conf_thresh_percentile=40.0,  # Confidence threshold percentile for depth map in GLB export
+    num_max_points=1_000_000,  # Maximum number of points to export in GLB export
+    show_cameras=True,  # Whether to show cameras in GLB export
+    feat_vis_fps=15,  # Frames per second for feature visualization in feat_vis export
+    export_kwargs={},  # Optional, additional arguments to export functions. export_format:key:val, see 'Parameters/Export Parameters' for details
 )
 ```
 
@@ -449,17 +449,17 @@ prediction = model.inference(image=["img1.jpg", "img2.jpg"])
 depth_maps = prediction.depth  # shape: (2, H, W)
 
 # Access confidence
-if hasattr(prediction, 'conf'):
+if hasattr(prediction, "conf"):
     confidence = prediction.conf
 
 # Access camera parameters (if available)
-if hasattr(prediction, 'extrinsics'):
+if hasattr(prediction, "extrinsics"):
     camera_poses = prediction.extrinsics  # shape: (2, 4, 4)
 
-if hasattr(prediction, 'intrinsics'):
+if hasattr(prediction, "intrinsics"):
     camera_intrinsics = prediction.intrinsics  # shape: (2, 3, 3)
 
 # Access intermediate features (if export_feat_layers was set)
-if hasattr(prediction, 'aux') and 'feat_layer_0' in prediction.aux:
-    features = prediction.aux['feat_layer_0']
+if hasattr(prediction, "aux") and "feat_layer_0" in prediction.aux:
+    features = prediction.aux["feat_layer_0"]
 ```

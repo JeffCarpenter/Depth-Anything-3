@@ -22,6 +22,7 @@ The original functionality has been split into modular components for better mai
 import argparse
 import os
 from typing import Any, Dict, List
+
 import gradio as gr
 
 from depth_anything_3.app.css_and_html import GRADIO_CSS, get_gradio_theme
@@ -37,7 +38,9 @@ class DepthAnything3App:
     Main application class for Depth Anything 3 Gradio app.
     """
 
-    def __init__(self, model_dir: str = None, workspace_dir: str = None, gallery_dir: str = None):
+    def __init__(
+        self, model_dir: str = None, workspace_dir: str = None, gallery_dir: str = None
+    ):
         """
         Initialize the application.
 
@@ -97,18 +100,22 @@ class DepthAnything3App:
             print("No example scenes found to cache.")
             return
 
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"Caching {len(scenes)} example scenes...")
-        print(f"{'='*60}\n")
+        print(f"{'=' * 60}\n")
 
         for i, scene in enumerate(scenes, 1):
             scene_name = scene["name"]
 
             # Check if scene name matches the gs tag for high-res+3DGS caching
-            use_high_res_gs = cache_gs_tag and cache_gs_tag.lower() in scene_name.lower()
+            use_high_res_gs = (
+                cache_gs_tag and cache_gs_tag.lower() in scene_name.lower()
+            )
 
             if use_high_res_gs:
-                print(f"[{i}/{len(scenes)}] Caching scene: {scene_name} (HIGH-RES + 3DGS)")
+                print(
+                    f"[{i}/{len(scenes)}] Caching scene: {scene_name} (HIGH-RES + 3DGS)"
+                )
                 print(f"  - Number of images: {scene['num_images']}")
                 print(f"  - Matched tag: '{cache_gs_tag}' - using high_res + 3DGS")
             else:
@@ -117,8 +124,8 @@ class DepthAnything3App:
 
             try:
                 # Load example scene
-                _, target_dir, _, _, _, _, _, _, _ = self.event_handlers.load_example_scene(
-                    scene_name
+                _, target_dir, _, _, _, _, _, _, _ = (
+                    self.event_handlers.load_example_scene(scene_name)
                 )
 
                 if target_dir and target_dir != "None":
@@ -147,7 +154,7 @@ class DepthAnything3App:
                     print(f"  ✗ Scene '{scene_name}' loading failed")
 
             except Exception as e:
-                print(f"  ✗ Error caching scene '{scene_name}': {str(e)}")
+                print(f"  ✗ Error caching scene '{scene_name}': {e!s}")
 
             print()
 
@@ -173,13 +180,15 @@ class DepthAnything3App:
             processed_data_state = gr.State(value=None)
             measure_points_state = gr.State(value=[])
             selected_image_index_state = gr.State(value=0)  # Track selected image index
-            # current_view_index = gr.State(value=0)  # noqa: F841 Track current view index
+            # current_view_index = gr.State(value=0)
 
             # Header and description
             self.ui_components.create_header_section()
             self.ui_components.create_description_section()
 
-            target_dir_output = gr.Textbox(label="Target Dir", visible=False, value="None")
+            target_dir_output = gr.Textbox(
+                label="Target Dir", visible=False, value="None"
+            )
 
             # Main content area
             with gr.Row():
@@ -220,14 +229,18 @@ class DepthAnything3App:
                                 ) = self.ui_components.create_measure_section()
 
                             with gr.Tab("3DGS Rendered Novel Views"):
-                                gs_video, gs_info = self.ui_components.create_nvs_video()
+                                gs_video, gs_info = (
+                                    self.ui_components.create_nvs_video()
+                                )
 
                         # Inference control section (before inference)
-                        (process_res_method_dropdown, infer_gs, ref_view_strategy_dropdown) = (
-                            self.ui_components.create_inference_control_section()
-                        )
+                        (
+                            process_res_method_dropdown,
+                            infer_gs,
+                            ref_view_strategy_dropdown,
+                        ) = self.ui_components.create_inference_control_section()
 
-                        # Display control section - includes 3DGS options, buttons, and Visualization Options  # noqa: E501
+                        # Display control section - includes 3DGS options, buttons, and Visualization Options
                         (
                             show_cam,
                             filter_black_bg,
@@ -360,7 +373,9 @@ class DepthAnything3App:
 
         # Main reconstruction button
         submit_btn.click(
-            fn=self.event_handlers.clear_fields, inputs=[], outputs=[reconstruction_output]
+            fn=self.event_handlers.clear_fields,
+            inputs=[],
+            outputs=[reconstruction_output],
         ).then(fn=self.event_handlers.update_log, inputs=[], outputs=[log_output]).then(
             fn=self.event_handlers.gradio_demo,
             inputs=[
@@ -411,12 +426,22 @@ class DepthAnything3App:
         input_video.change(
             fn=self.event_handlers.handle_uploads,
             inputs=[input_video, input_images, s_time_interval],
-            outputs=[reconstruction_output, target_dir_output, image_gallery, log_output],
+            outputs=[
+                reconstruction_output,
+                target_dir_output,
+                image_gallery,
+                log_output,
+            ],
         )
         input_images.change(
             fn=self.event_handlers.handle_uploads,
             inputs=[input_video, input_images, s_time_interval],
-            outputs=[reconstruction_output, target_dir_output, image_gallery, log_output],
+            outputs=[
+                reconstruction_output,
+                target_dir_output,
+                image_gallery,
+                log_output,
+            ],
         )
 
         # Navigation handlers
@@ -434,7 +459,12 @@ class DepthAnything3App:
         measure_image.select(
             fn=self.event_handlers.measure,
             inputs=[processed_data_state, measure_points_state, measure_view_selector],
-            outputs=[measure_image, measure_depth_image, measure_points_state, measure_text],
+            outputs=[
+                measure_image,
+                measure_depth_image,
+                measure_points_state,
+                measure_text,
+            ],
         )
 
         # Example scene handlers
@@ -497,8 +527,10 @@ class DepthAnything3App:
         """Set up navigation handlers for measure tab."""
         # Measure tab navigation
         prev_measure_btn.click(
-            fn=lambda processed_data, current_selector: self.event_handlers.navigate_measure_view(
-                processed_data, current_selector, -1
+            fn=lambda processed_data, current_selector: (
+                self.event_handlers.navigate_measure_view(
+                    processed_data, current_selector, -1
+                )
             ),
             inputs=[processed_data_state, measure_view_selector],
             outputs=[
@@ -510,8 +542,10 @@ class DepthAnything3App:
         )
 
         next_measure_btn.click(
-            fn=lambda processed_data, current_selector: self.event_handlers.navigate_measure_view(
-                processed_data, current_selector, 1
+            fn=lambda processed_data, current_selector: (
+                self.event_handlers.navigate_measure_view(
+                    processed_data, current_selector, 1
+                )
             ),
             inputs=[processed_data_state, measure_view_selector],
             outputs=[
@@ -554,14 +588,16 @@ class DepthAnything3App:
 
         def load_and_update_measure(name):
             result = self.event_handlers.load_example_scene(name)
-            # result = (reconstruction_output, target_dir, image_paths, log_message, processed_data, measure_view_selector, gs_video, gs_video_vis, gs_info_vis)  # noqa: E501
+            # result = (reconstruction_output, target_dir, image_paths, log_message, processed_data, measure_view_selector, gs_video, gs_video_vis, gs_info_vis)
 
             # Update measure view if processed_data is available
             measure_img = None
             measure_depth = None
             if result[4] is not None:  # processed_data exists
                 measure_img, measure_depth, _ = (
-                    self.event_handlers.visualization_handler.update_measure_view(result[4], 0)
+                    self.event_handlers.visualization_handler.update_measure_view(
+                        result[4], 0
+                    )
                 )
 
             return result + ("True", measure_img, measure_depth)
@@ -597,7 +633,11 @@ class DepthAnything3App:
         """
         demo = self.create_app()
         demo.queue(max_size=20).launch(
-            show_error=True, ssr_mode=False, server_name=host, server_port=port, **kwargs
+            show_error=True,
+            ssr_mode=False,
+            server_name=host,
+            server_port=port,
+            **kwargs,
         )
 
 
@@ -625,7 +665,9 @@ Examples:
 
     # Server configuration
     parser.add_argument(
-        "--host", default="127.0.0.1", help="Host address to bind to (default: 127.0.0.1)"
+        "--host",
+        default="127.0.0.1",
+        help="Host address to bind to (default: 127.0.0.1)",
     )
     parser.add_argument(
         "--port", type=int, default=7860, help="Port number to bind to (default: 7860)"
@@ -639,17 +681,19 @@ Examples:
     )
     parser.add_argument(
         "--workspace-dir",
-        default="workspace/gradio",  # noqa: E501
-        help="Path to the workspace directory (default: workspace/gradio)",  # noqa: E501
+        default="workspace/gradio",
+        help="Path to the workspace directory (default: workspace/gradio)",
     )
     parser.add_argument(
         "--gallery-dir",
         default="workspace/gallery",
-        help="Path to the gallery directory (default: workspace/gallery)",  # noqa: E501
+        help="Path to the gallery directory (default: workspace/gallery)",
     )
 
     # Additional Gradio options
-    parser.add_argument("--share", action="store_true", help="Create a public link for the app")
+    parser.add_argument(
+        "--share", action="store_true", help="Create a public link for the app"
+    )
     parser.add_argument("--debug", action="store_true", help="Enable debug mode")
 
     # Example caching options
@@ -662,7 +706,7 @@ Examples:
         "--cache-gs-tag",
         type=str,
         default="",
-        help="Tag to match scene names for high-res+3DGS caching (e.g., 'dl3dv'). Scenes containing this tag will use high_res and infer_gs=True; others will use low_res only.",  # noqa: E501
+        help="Tag to match scene names for high-res+3DGS caching (e.g., 'dl3dv'). Scenes containing this tag will use high_res and infer_gs=True; others will use low_res only.",
     )
 
     args = parser.parse_args()
@@ -673,7 +717,9 @@ Examples:
 
     # Initialize and launch the application
     app = DepthAnything3App(
-        model_dir=args.model_dir, workspace_dir=args.workspace_dir, gallery_dir=args.gallery_dir
+        model_dir=args.model_dir,
+        workspace_dir=args.workspace_dir,
+        gallery_dir=args.gallery_dir,
     )
 
     # Prepare launch arguments
@@ -691,8 +737,8 @@ Examples:
     if args.cache_examples:
         if args.cache_gs_tag:
             print(
-                f"Cache GS Tag: '{args.cache_gs_tag}' (scenes matching this tag will use high-res + 3DGS)"  # noqa: E501
-            )  # noqa: E501
+                f"Cache GS Tag: '{args.cache_gs_tag}' (scenes matching this tag will use high-res + 3DGS)"
+            )
         else:
             print("Cache GS Tag: None (all scenes will use low-res only)")
 

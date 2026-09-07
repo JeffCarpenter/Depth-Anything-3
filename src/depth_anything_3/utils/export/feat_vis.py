@@ -14,6 +14,7 @@
 
 import os
 import subprocess
+
 import cv2
 import imageio
 import numpy as np
@@ -45,7 +46,9 @@ def export_to_feat_vis(
         if not k.startswith("feat_layer_"):
             continue
         os.makedirs(os.path.join(out_dir, k), exist_ok=True)
-        viz = PCARGBVisualizer(basis_mode="fixed", percentile_mode="global", clip_percent=10.0)
+        viz = PCARGBVisualizer(
+            basis_mode="fixed", percentile_mode="global", clip_percent=10.0
+        )
         viz.fit_reference(v)
         feats_vis = viz.transform_video(v)
         for idx in tqdm(range(len(feats_vis))):
@@ -59,14 +62,20 @@ def export_to_feat_vis(
             imageio.imwrite(save_path, save, quality=95)
         cmd = [
             "ffmpeg",
-            "-loglevel", "error",
+            "-loglevel",
+            "error",
             "-hide_banner",
             "-y",
-            "-framerate", str(fps),
-            "-start_number", "0",
-            "-i", os.path.join(out_dir, k, "%06d.jpg"),
-            "-c:v", "libx264",
-            "-pix_fmt", "yuv420p",
+            "-framerate",
+            str(fps),
+            "-start_number",
+            "0",
+            "-i",
+            os.path.join(out_dir, k, "%06d.jpg"),
+            "-c:v",
+            "libx264",
+            "-pix_fmt",
+            "yuv420p",
             os.path.join(out_dir, f"{k}.mp4"),
         ]
         try:

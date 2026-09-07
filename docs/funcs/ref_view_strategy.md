@@ -83,22 +83,16 @@ from depth_anything_3 import DepthAnything3
 model = DepthAnything3.from_pretrained("depth-anything/DA3NESTED-GIANT-LARGE")
 
 # Use default (saddle_balanced)
-prediction = model.inference(
-    images,
-    ref_view_strategy="saddle_balanced"
-)
+prediction = model.inference(images, ref_view_strategy="saddle_balanced")
 
 # For video sequences, consider using middle
 prediction = model.inference(
     video_frames,
-    ref_view_strategy="middle"  # Good for temporal sequences
+    ref_view_strategy="middle",  # Good for temporal sequences
 )
 
 # For complex scenes with wide baselines
-prediction = model.inference(
-    images,
-    ref_view_strategy="saddle_sim_range"
-)
+prediction = model.inference(images, ref_view_strategy="saddle_sim_range")
 ```
 
 ### 🖥️ Command Line Interface

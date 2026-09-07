@@ -16,6 +16,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any, Optional
+
 import numpy as np
 import torch
 
@@ -28,7 +29,9 @@ class Gaussians:
     scales: torch.Tensor  # scales_std, "batch gaussian 3"
     rotations: torch.Tensor  # world_quat_wxyz, "batch gaussian 4"
     harmonics: torch.Tensor  # world SH, "batch gaussian 3 d_sh"
-    opacities: torch.Tensor  # opacity | opacity SH, "batch gaussian" | "batch gaussian 1 d_sh"
+    opacities: (
+        torch.Tensor
+    )  # opacity | opacity SH, "batch gaussian" | "batch gaussian 1 d_sh"
 
 
 @dataclass
@@ -39,7 +42,9 @@ class Prediction:
     conf: np.ndarray | None = None  # N, H, W
     extrinsics: np.ndarray | None = None  # N, 4, 4
     intrinsics: np.ndarray | None = None  # N, 3, 3
-    processed_images: np.ndarray | None = None  # N, H, W, 3 - processed images for visualization
+    processed_images: np.ndarray | None = (
+        None  # N, H, W, 3 - processed images for visualization
+    )
     gaussians: Gaussians | None = None  # 3D gaussians
-    aux: dict[str, Any] = None  #
+    aux: dict[str, Any] = None
     scale_factor: Optional[float] = None  # metric scale

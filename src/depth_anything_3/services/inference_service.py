@@ -18,8 +18,8 @@ Provides unified interface for local and remote inference
 """
 
 import os
-
 from typing import Any, Dict, List, Optional, Union
+
 import numpy as np
 import requests
 import typer
@@ -39,7 +39,9 @@ class InferenceService:
         """Load model"""
         if self.model is None:
             typer.echo(f"Loading model from {self.model_dir}...")
-            self.model = DepthAnything3.from_pretrained(self.model_dir, device=self.device)
+            self.model = DepthAnything3.from_pretrained(
+                self.model_dir, device=self.device
+            )
         return self.model
 
     def run_local_inference(
@@ -144,9 +146,13 @@ class InferenceService:
 
         # Add pose data (if exists)
         if extrinsics is not None:
-            payload["extrinsics"] = [ext.astype(np.float64).tolist() for ext in extrinsics]
+            payload["extrinsics"] = [
+                ext.astype(np.float64).tolist() for ext in extrinsics
+            ]
         if intrinsics is not None:
-            payload["intrinsics"] = [intr.astype(np.float64).tolist() for intr in intrinsics]
+            payload["intrinsics"] = [
+                intr.astype(np.float64).tolist() for intr in intrinsics
+            ]
 
         # Submit task
         typer.echo("Submitting inference task to backend...")
@@ -166,7 +172,9 @@ class InferenceService:
                 typer.echo("Task submitted successfully!")
                 typer.echo(f"Task ID: {task_id}")
                 typer.echo(f"Results will be saved to: {export_dir}")
-                typer.echo(f"Check backend logs for progress updates with task ID: {task_id}")
+                typer.echo(
+                    f"Check backend logs for progress updates with task ID: {task_id}"
+                )
                 return result
             else:
                 raise typer.BadParameter(

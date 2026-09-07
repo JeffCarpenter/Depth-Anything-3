@@ -12,17 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from collections.abc import Sequence
 from typing import Dict as TyDict
-from typing import List, Sequence
+from typing import List
+
 import torch
-import torch.nn as nn
+from torch import nn
 
 from depth_anything_3.model.dpt import DPT
 from depth_anything_3.model.utils.head_utils import activate_head_gs, custom_interpolate
 
 
 class GSDPT(DPT):
-
     def __init__(
         self,
         dim_in: int,
@@ -56,9 +57,9 @@ class GSDPT(DPT):
         )
         self.conf_dim = conf_dim
         if conf_dim and conf_dim > 1:
-            assert (
-                conf_activation == "linear"
-            ), "use linear prediction when using view-dependent opacity"
+            assert conf_activation == "linear", (
+                "use linear prediction when using view-dependent opacity"
+            )
 
         merger_out_dim = features if feature_only else features // 2
         self.images_merger = nn.Sequential(
@@ -103,7 +104,9 @@ class GSDPT(DPT):
         h_out = int(ph * self.patch_size / self.down_ratio)
         w_out = int(pw * self.patch_size / self.down_ratio)
 
-        fused = custom_interpolate(fused, (h_out, w_out), mode="bilinear", align_corners=True)
+        fused = custom_interpolate(
+            fused, (h_out, w_out), mode="bilinear", align_corners=True
+        )
 
         # inject the image information here
         fused = fused + self.images_merger(images)

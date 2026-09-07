@@ -21,17 +21,16 @@ data processing, and result preparation.
 
 import glob
 import os
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Tuple
+
 import numpy as np
 import torch
 
-from huggingface_hub import snapshot_download
-
 from depth_anything_3.api import DepthAnything3
 from depth_anything_3.utils.download import download_model
-from depth_anything_3.utils.memory import cleanup_cuda_memory
 from depth_anything_3.utils.export.glb import export_to_glb
 from depth_anything_3.utils.export.gs import export_to_gs_video
+from depth_anything_3.utils.memory import cleanup_cuda_memory
 
 
 class ModelInference:
@@ -52,8 +51,7 @@ class ModelInference:
         """
         if self.model is None:
             # Get model directory from environment variable or use default
-            model_dir = os.environ.get(
-                "DA3_MODEL_DIR", download_model("DA3-SMALL"))
+            model_dir = os.environ.get("DA3_MODEL_DIR", download_model("DA3-SMALL"))
             self.model = DepthAnything3.from_pretrained(model_dir)
             self.model = self.model.to(device)
         else:
@@ -127,7 +125,10 @@ class ModelInference:
             raise ValueError("No images found. Check your upload.")
 
         # Map UI options to actual method names
-        method_mapping = {"high_res": "lower_bound_resize", "low_res": "upper_bound_resize"}
+        method_mapping = {
+            "high_res": "lower_bound_resize",
+            "low_res": "upper_bound_resize",
+        }
         actual_method = method_mapping.get(process_res_method, "upper_bound_crop")
 
         # Run model inference
@@ -247,11 +248,14 @@ class ModelInference:
                 processed_data[i] = {
                     "depth_image": depth_file,
                     "image": processed_image,
-                    "original_image_path": image_paths[i] if i < len(image_paths) else None,
+                    "original_image_path": image_paths[i]
+                    if i < len(image_paths)
+                    else None,
                     "depth": prediction.depth[i] if i < len(prediction.depth) else None,
                     "intrinsics": (
                         prediction.intrinsics[i]
-                        if prediction.intrinsics is not None and i < len(prediction.intrinsics)
+                        if prediction.intrinsics is not None
+                        and i < len(prediction.intrinsics)
                         else None
                     ),
                     "mask": None,  # No mask information available

@@ -9,7 +9,8 @@
 
 
 from typing import List
-import torch.nn as nn
+
+from torch import nn
 
 from depth_anything_3.model.dinov2.vision_transformer import (
     vit_base,

@@ -18,6 +18,7 @@ import argparse
 import os
 import sys
 from pathlib import Path
+
 import faiss
 import torch
 import torchvision.transforms as T
@@ -194,11 +195,14 @@ class LoopDetector:
 
             batch_tensor = torch.stack(batch_imgs).to(self.device)
 
-            with torch.no_grad():
-                with torch.autocast(
-                    device_type="cuda" if torch.cuda.is_available() else "cpu", dtype=torch.float16
-                ):
-                    batch_descriptors = self.model(batch_tensor).cpu()
+            with (
+                torch.no_grad(),
+                torch.autocast(
+                    device_type="cuda" if torch.cuda.is_available() else "cpu",
+                    dtype=torch.float16,
+                ),
+            ):
+                batch_descriptors = self.model(batch_tensor).cpu()
 
             descriptors.append(batch_descriptors)
 
@@ -261,7 +265,10 @@ class LoopDetector:
                 neighbor_idx = indices[i, j]
                 similarity = similarities[i, j]
 
-                if similarity > self.similarity_threshold and abs(i - neighbor_idx) > 10:
+                if (
+                    similarity > self.similarity_threshold
+                    and abs(i - neighbor_idx) > 10
+                ):
                     if i < neighbor_idx:
                         loop_closures.append((i, neighbor_idx, similarity))
                     else:
@@ -286,13 +293,13 @@ class LoopDetector:
             if self.use_nms:
                 f.write(f"# NMS filtering applied, threshold: {self.nms_threshold}\n")
             f.write("\n# Loop pairs:\n")
-            for i, j, sim in self.loop_closures:
-                f.write(f"{i}, {j}, {sim:.4f}\n")
+            f.writelines(f"{i}, {j}, {sim:.4f}\n" for i, j, sim in self.loop_closures)
             f.write("\n# Image path list:\n")
-            for i, path in enumerate(self.image_paths):
-                f.write(f"# {i}: {path}\n")
+            f.writelines(f"# {i}: {path}\n" for i, path in enumerate(self.image_paths))
 
-        print(f"Found {len(self.loop_closures)} loop pairs, results saved to {self.output}")
+        print(
+            f"Found {len(self.loop_closures)} loop pairs, results saved to {self.output}"
+        )
         if self.use_nms:
             print(f"NMS filtering applied, threshold: {self.nms_threshold}")
 
@@ -337,7 +344,10 @@ def main():
         help="Directory path containing images",
     )
     parser.add_argument(
-        "--ckpt_path", type=str, default="./weights/dino_salad.ckpt", help="Model checkpoint path"
+        "--ckpt_path",
+        type=str,
+        default="./weights/dino_salad.ckpt",
+        help="Model checkpoint path",
     )
     parser.add_argument(
         "--image_size",
@@ -346,7 +356,9 @@ def main():
         default=[336, 336],
         help="Image resize dimensions [height width]",
     )
-    parser.add_argument("--batch_size", type=int, default=32, help="Batch size for processing")
+    parser.add_argument(
+        "--batch_size", type=int, default=32, help="Batch size for processing"
+    )
     parser.add_argument(
         "--similarity_threshold",
         type=float,
@@ -354,9 +366,14 @@ def main():
         help="Similarity threshold for loop closure",
     )
     parser.add_argument(
-        "--top_k", type=int, default=5, help="Number of nearest neighbors to check for each image"
+        "--top_k",
+        type=int,
+        default=5,
+        help="Number of nearest neighbors to check for each image",
     )
-    parser.add_argument("--output", type=str, default="loop_closures.txt", help="Output file path")
+    parser.add_argument(
+        "--output", type=str, default="loop_closures.txt", help="Output file path"
+    )
     parser.add_argument(
         "--use_nms",
         action="store_true",

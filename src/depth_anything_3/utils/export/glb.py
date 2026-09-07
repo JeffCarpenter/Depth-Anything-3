@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import os
 import shutil
+
 import numpy as np
 import trimesh
 
@@ -25,7 +26,9 @@ from depth_anything_3.utils.logger import logger
 from .depth_vis import export_to_depth_vis
 
 
-def set_sky_depth(prediction: Prediction, sky_mask: np.ndarray, sky_depth_def: float = 98.0):
+def set_sky_depth(
+    prediction: Prediction, sky_mask: np.ndarray, sky_depth_def: float = 98.0
+):
     non_sky_mask = ~sky_mask
     valid_depth = prediction.depth[non_sky_mask]
     if valid_depth.size > 0:
@@ -90,21 +93,21 @@ def export_to_glb(
         Path to the exported ``scene.glb`` file.
     """
     # 1) Use prediction.processed_images, which is already processed image data
-    assert (
-        prediction.processed_images is not None
-    ), "Export to GLB: prediction.processed_images is required but not available"
-    assert (
-        prediction.depth is not None
-    ), "Export to GLB: prediction.depth is required but not available"
-    assert (
-        prediction.intrinsics is not None
-    ), "Export to GLB: prediction.intrinsics is required but not available"
-    assert (
-        prediction.extrinsics is not None
-    ), "Export to GLB: prediction.extrinsics is required but not available"
-    assert (
-        prediction.conf is not None
-    ), "Export to GLB: prediction.conf is required but not available"
+    assert prediction.processed_images is not None, (
+        "Export to GLB: prediction.processed_images is required but not available"
+    )
+    assert prediction.depth is not None, (
+        "Export to GLB: prediction.depth is required but not available"
+    )
+    assert prediction.intrinsics is not None, (
+        "Export to GLB: prediction.intrinsics is required but not available"
+    )
+    assert prediction.extrinsics is not None, (
+        "Export to GLB: prediction.extrinsics is required but not available"
+    )
+    assert prediction.conf is not None, (
+        "Export to GLB: prediction.conf is required but not available"
+    )
     logger.info(f"conf_thresh_percentile: {conf_thresh_percentile}")
     logger.info(f"num max points: {num_max_points}")
     logger.info(f"Exporting to GLB with num_max_points: {num_max_points}")
@@ -163,7 +166,11 @@ def export_to_glb(
         scene.add_geometry(pc)
 
     # 8) Draw cameras (wireframe pyramids), using the same transform A
-    if show_cameras and prediction.intrinsics is not None and prediction.extrinsics is not None:
+    if (
+        show_cameras
+        and prediction.intrinsics is not None
+        and prediction.extrinsics is not None
+    ):
         scene_scale = _estimate_scene_scale(points, fallback=1.0)
         H, W = prediction.depth.shape[1:]
         _add_cameras_to_scene(
@@ -185,7 +192,9 @@ def export_to_glb(
         if os.path.isfile(depth_vis_thumbnail):
             shutil.copy2(depth_vis_thumbnail, os.path.join(export_dir, "scene.jpg"))
         else:
-            logger.warn(f"Depth visualization thumbnail not found at {depth_vis_thumbnail}")
+            logger.warn(
+                f"Depth visualization thumbnail not found at {depth_vis_thumbnail}"
+            )
     return out_path
 
 
@@ -354,7 +363,9 @@ def _add_cameras_to_scene(
 
     for i in range(N):
         H, W = image_sizes[i]
-        segs = _camera_frustum_lines(K[i], ext_w2c[i], W, H, scale)  # (8,2,3) world frame
+        segs = _camera_frustum_lines(
+            K[i], ext_w2c[i], W, H, scale
+        )  # (8,2,3) world frame
         # Apply unified transformation
         segs = trimesh.transform_points(segs.reshape(-1, 3), A).reshape(-1, 2, 3)
         path = trimesh.load_path(segs)

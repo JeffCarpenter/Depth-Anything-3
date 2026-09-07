@@ -1,6 +1,5 @@
 from huggingface_hub import snapshot_download
 
-
 models = {
     "DA3-SMALL": "depth-anything/DA3-SMALL",
     "DA3-BASE": "depth-anything/DA3-BASE",
@@ -17,4 +16,3 @@ models = {
 
 def download_model(model: str):
     return snapshot_download(models[model.upper()])
-

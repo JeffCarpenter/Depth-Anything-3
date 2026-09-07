@@ -9,6 +9,7 @@
 #   https://github.com/rwightman/pytorch-image-models/tree/master/timm/models/vision_transformer.py
 
 import logging
+
 import torch.nn.functional as F
 from torch import Tensor, nn
 

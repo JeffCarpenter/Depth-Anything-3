@@ -31,13 +31,13 @@ from depth_anything_3.app.modules.utils import (
 from depth_anything_3.app.modules.visualization import VisualizationHandler
 
 __all__ = [
-    "ModelInference",
-    "FileHandler",
-    "VisualizationHandler",
     "EventHandlers",
+    "FileHandler",
+    "ModelInference",
     "UIComponents",
+    "VisualizationHandler",
     "create_depth_visualization",
-    "save_to_gallery_func",
-    "get_scene_info",
     "get_logo_base64",
+    "get_scene_info",
+    "save_to_gallery_func",
 ]

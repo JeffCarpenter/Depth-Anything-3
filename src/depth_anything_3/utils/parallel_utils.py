@@ -18,6 +18,7 @@ from functools import wraps
 from multiprocessing.pool import ThreadPool
 from threading import Thread
 from typing import Callable, Dict, List
+
 import imageio
 from tqdm import tqdm
 
@@ -32,9 +33,9 @@ def async_call_func(func):
     return wrapper
 
 
-slice_func = lambda chunk_index, chunk_dim, chunk_size: [slice(None)] * chunk_dim + [
-    slice(chunk_index, chunk_index + chunk_size)
-]
+slice_func = lambda chunk_index, chunk_dim, chunk_size: (
+    [slice(None)] * chunk_dim + [slice(chunk_index, chunk_index + chunk_size)]
+)
 
 
 def async_call(fn):
@@ -88,7 +89,8 @@ def parallel_execution(
 
     def get_action_args(length: int, args: List, kwargs: Dict, i: int):
         action_args = [
-            (arg[i] if isinstance(arg, list) and len(arg) == length else arg) for arg in args
+            (arg[i] if isinstance(arg, list) and len(arg) == length else arg)
+            for arg in args
         ]
         # TODO: Support all types of iterable
         action_kwargs = {

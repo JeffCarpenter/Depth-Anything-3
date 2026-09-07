@@ -20,6 +20,7 @@ This module handles visualization updates, navigation, and measurement functiona
 
 import os
 from typing import Any, Dict, List, Optional, Tuple
+
 import cv2
 import gradio as gr
 import numpy as np
@@ -330,7 +331,9 @@ class VisualizationHandler:
             try:
                 for p in measure_points:
                     if 0 <= p[0] < image.shape[1] and 0 <= p[1] < image.shape[0]:
-                        image = cv2.circle(image, p, radius=5, color=(255, 0, 0), thickness=2)
+                        image = cv2.circle(
+                            image, p, radius=5, color=(255, 0, 0), thickness=2
+                        )
             except Exception as e:
                 print(f"Drawing error: {e}")
                 return [None, [], f"Drawing error: {e}"]
@@ -347,7 +350,7 @@ class VisualizationHandler:
                         d = current_view["depth"][p[1], p[0]]
                         depth_text += f"- **P{i + 1} depth: {d:.2f}m**\n"
                     else:
-                        depth_text += f"- **P{i + 1}: Click position ({p[0]}, {p[1]}) - No depth information**\n"  # noqa: E501
+                        depth_text += f"- **P{i + 1}: Click position ({p[0]}, {p[1]}) - No depth information**\n"
             except Exception as e:
                 print(f"Depth text error: {e}")
                 depth_text = f"Error computing depth: {e}\n"
@@ -362,7 +365,9 @@ class VisualizationHandler:
                         and 0 <= point2[0] < image.shape[1]
                         and 0 <= point2[1] < image.shape[0]
                     ):
-                        image = cv2.line(image, point1, point2, color=(255, 0, 0), thickness=2)
+                        image = cv2.line(
+                            image, point1, point2, color=(255, 0, 0), thickness=2
+                        )
 
                     # Compute 3D distance using depth information and camera intrinsics
                     distance_text = "- **Distance: Unable to calculate 3D distance**"
@@ -407,12 +412,13 @@ class VisualizationHandler:
                             else:
                                 # Fallback to simplified calculation if no intrinsics
                                 pixel_distance = np.sqrt(
-                                    (point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2
+                                    (point1[0] - point2[0]) ** 2
+                                    + (point1[1] - point2[1]) ** 2
                                 )
                                 avg_depth = (d1 + d2) / 2
                                 scale_factor = avg_depth / 1000  # Rough scaling factor
                                 estimated_3d_distance = pixel_distance * scale_factor
-                                distance_text = f"- **Distance: {estimated_3d_distance:.2f}m (estimated, no intrinsics)**"  # noqa: E501
+                                distance_text = f"- **Distance: {estimated_3d_distance:.2f}m (estimated, no intrinsics)**"
 
                         except Exception as e:
                             print(f"Distance computation error: {e}")

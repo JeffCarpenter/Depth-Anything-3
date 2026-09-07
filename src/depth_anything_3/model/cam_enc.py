@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import torch.nn as nn
+from torch import nn
 
 from depth_anything_3.model.utils.attention import Mlp
 from depth_anything_3.model.utils.block import Block

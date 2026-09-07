@@ -1,4 +1,3 @@
-# flake8: noqa: E501
 # Copyright (c) 2025 ByteDance Ltd. and/or its affiliates
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,12 +25,11 @@ import re
 import secrets
 import time
 import uuid
-
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Dict, List, Optional
 from urllib.parse import quote
-import numpy as np
 
+import numpy as np
 import uvicorn
 from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.responses import FileResponse, HTMLResponse
@@ -40,10 +38,10 @@ from pydantic import BaseModel, field_validator
 from ..api import DepthAnything3
 from ..utils.export import SUPPORTED_EXPORT_FORMATS
 from ..utils.memory import (
-    get_gpu_memory_info,
-    cleanup_cuda_memory,
     check_memory_availability,
+    cleanup_cuda_memory,
     estimate_memory_requirement,
+    get_gpu_memory_info,
 )
 
 
@@ -133,10 +131,10 @@ def _render_task_card(task: "TaskStatus", css_class: str) -> str:
                     <div class="task-message">{e(task.message)}</div>
                     <div class="task-params">
                         <small>
-                            Images: {e(str(task.num_images)) if task.num_images is not None else 'N/A'} |
-                            Format: {e(task.export_format) if task.export_format else 'N/A'} |
-                            Method: {e(task.process_res_method) if task.process_res_method else 'N/A'} |
-                            Export Dir: {e(task.export_dir) if task.export_dir else 'N/A'}
+                            Images: {e(str(task.num_images)) if task.num_images is not None else "N/A"} |
+                            Format: {e(task.export_format) if task.export_format else "N/A"} |
+                            Method: {e(task.process_res_method) if task.process_res_method else "N/A"} |
+                            Export Dir: {e(task.export_dir) if task.export_dir else "N/A"}
                         </small>
                         {video_row}
                     </div>
@@ -274,7 +272,9 @@ def _run_inference_task(task_id: str):
         # Update task status to running
         _tasks[task_id].status = "running"
         _tasks[task_id].started_at = start_time
-        _tasks[task_id].message = f"[{task_id}] Starting inference on {num_images} frames..."
+        _tasks[
+            task_id
+        ].message = f"[{task_id}] Starting inference on {num_images} frames..."
         print(f"[{task_id}] Starting inference on {num_images} frames")
 
         # Pre-inference cleanup to ensure maximum available memory
@@ -314,7 +314,7 @@ def _run_inference_task(task_id: str):
             if "out of memory" in str(e).lower():
                 cleanup_cuda_memory()
                 raise RuntimeError(
-                    f"OOM during model loading: {str(e)}\n"
+                    f"OOM during model loading: {e!s}\n"
                     f"Try reducing the batch size or resolution."
                 )
             raise
@@ -344,15 +344,21 @@ def _run_inference_task(task_id: str):
             inference_kwargs["export_dir"] = request.export_dir
 
         if request.extrinsics:
-            inference_kwargs["extrinsics"] = np.array(request.extrinsics, dtype=np.float32)
+            inference_kwargs["extrinsics"] = np.array(
+                request.extrinsics, dtype=np.float32
+            )
 
         if request.intrinsics:
-            inference_kwargs["intrinsics"] = np.array(request.intrinsics, dtype=np.float32)
+            inference_kwargs["intrinsics"] = np.array(
+                request.intrinsics, dtype=np.float32
+            )
 
         # Run inference with timing
         inference_start_time = time.time()
         print(f"[{task_id}] Running model inference...")
-        _tasks[task_id].message = f"[{task_id}] Running model inference on {num_images} images..."
+        _tasks[
+            task_id
+        ].message = f"[{task_id}] Running model inference on {num_images} images..."
         _tasks[task_id].progress = 0.3
 
         inference_started = True
@@ -371,7 +377,7 @@ def _run_inference_task(task_id: str):
             if "out of memory" in str(e).lower():
                 cleanup_cuda_memory()
                 raise RuntimeError(
-                    f"OOM during inference: {str(e)}\n"
+                    f"OOM during inference: {e!s}\n"
                     f"Settings: {num_images} images, resolution={request.process_res}\n"
                     f"Suggestions:\n"
                     f"  1. Reduce process_res to {int(request.process_res * 0.75)}\n"
@@ -393,7 +399,8 @@ def _run_inference_task(task_id: str):
         _tasks[task_id].status = "completed"
         _tasks[task_id].completed_at = time.time()
         _tasks[task_id].message = (
-            f"[{task_id}] Completed in {total_time:.2f}s " f"({avg_time_per_image:.2f}s per image)"
+            f"[{task_id}] Completed in {total_time:.2f}s "
+            f"({avg_time_per_image:.2f}s per image)"
         )
         _tasks[task_id].progress = 1.0
         _tasks[task_id].export_dir = request.export_dir
@@ -423,7 +430,9 @@ def _run_inference_task(task_id: str):
 
         _tasks[task_id].status = "failed"
         _tasks[task_id].completed_at = time.time()
-        _tasks[task_id].message = f"[{task_id}] Failed after {total_time:.2f}s: {error_msg}"
+        _tasks[
+            task_id
+        ].message = f"[{task_id}] Failed after {total_time:.2f}s: {error_msg}"
 
         # Clear running state
         _running_task_id = None
@@ -483,7 +492,9 @@ def _cleanup_old_tasks():
             print(f"[CLEANUP] Removed excess task: {task_id}")
 
     # Count active tasks (only pending and running)
-    active_count = sum(1 for task in _tasks.values() if task.status in ["pending", "running"])
+    active_count = sum(
+        1 for task in _tasks.values() if task.status in ["pending", "running"]
+    )
     print(
         "[CLEANUP] Task cleanup completed. "
         f"Total tasks: {len(_tasks)}, Active tasks: {active_count}"
@@ -557,9 +568,9 @@ def build_group_list(root_dir: str) -> dict:
                     spath = os.path.join(gpath, sname)
                     if not os.path.isdir(spath):
                         continue
-                    if os.path.exists(os.path.join(spath, "scene.glb")) and os.path.exists(
-                        os.path.join(spath, "scene.jpg")
-                    ):
+                    if os.path.exists(
+                        os.path.join(spath, "scene.glb")
+                    ) and os.path.exists(os.path.join(spath, "scene.jpg")):
                         has_scene = True
                         break
             except Exception:
@@ -603,7 +614,8 @@ def build_group_manifest(root_dir: str, group: str) -> dict:
                     "id": sname,
                     "title": sname,
                     "model": "/gallery/" + _gallery_url_join(group, sname, "scene.glb"),
-                    "thumbnail": "/gallery/" + _gallery_url_join(group, sname, "scene.jpg"),
+                    "thumbnail": "/gallery/"
+                    + _gallery_url_join(group, sname, "scene.jpg"),
                     "depth_images": depth_images,
                 }
             )
@@ -624,7 +636,9 @@ _EXPORT_DIR_METACHAR_RE = re.compile(r"[;&|`$\n\r<>\x00]")
 _LOOPBACK_HOSTS = {"127.0.0.1", "localhost", "::1", "0:0:0:0:0:0:0:1"}
 
 
-def validate_export_dir(export_dir: Optional[str], gallery_dir: Optional[str]) -> Optional[str]:
+def validate_export_dir(
+    export_dir: Optional[str], gallery_dir: Optional[str]
+) -> Optional[str]:
     """Validate a client-supplied export_dir before it reaches any inference/export code.
 
     export_dir must be a simple relative path that resolves within the server's
@@ -689,10 +703,14 @@ def create_app(
     # DA3_BACKEND_API_KEY env var so the key never needs to appear in a command line.
     _api_key = api_key or os.environ.get("DA3_BACKEND_API_KEY")
 
-    async def _require_api_key(x_api_key: Optional[str] = Header(default=None, alias="X-API-Key")):
+    async def _require_api_key(
+        x_api_key: Optional[str] = Header(default=None, alias="X-API-Key"),
+    ):
         """FastAPI dependency enforcing the API key when one is configured."""
         if _api_key and not hmac.compare_digest(x_api_key or "", _api_key):
-            raise HTTPException(status_code=401, detail="Missing or invalid X-API-Key header")
+            raise HTTPException(
+                status_code=401, detail="Missing or invalid X-API-Key header"
+            )
 
     @_app.get("/", response_class=HTMLResponse)
     async def root():
@@ -972,7 +990,9 @@ def create_app(
             uptime_str = "Not running"
 
         # Get tasks information
-        active_tasks = [task for task in _tasks.values() if task.status in ["pending", "running"]]
+        active_tasks = [
+            task for task in _tasks.values() if task.status in ["pending", "running"]
+        ]
         completed_tasks = [
             task for task in _tasks.values() if task.status in ["completed", "failed"]
         ]
@@ -1158,17 +1178,17 @@ def create_app(
                 <h3>Model Status</h3>
                 <div class="status-item">
                     <span>Status:</span>
-                    <span class="status-value {'status-online' if status['model_loaded'] else 'status-offline'}">
-                        {'Online' if status['model_loaded'] else 'Offline'}
+                    <span class="status-value {"status-online" if status["model_loaded"] else "status-offline"}">
+                        {"Online" if status["model_loaded"] else "Offline"}
                     </span>
                 </div>
                 <div class="status-item">
                     <span>Model Directory:</span>
-                    <span class="status-value">{html.escape(str(status['model_dir']))}</span>
+                    <span class="status-value">{html.escape(str(status["model_dir"]))}</span>
                 </div>
                 <div class="status-item">
                     <span>Device:</span>
-                    <span class="status-value">{html.escape(str(status['device']))}</span>
+                    <span class="status-value">{html.escape(str(status["device"]))}</span>
                 </div>
                 <div class="status-item">
                     <span>Load Time:</span>
@@ -1203,7 +1223,7 @@ def create_app(
             <label class="auto-refresh">
                 <input type="checkbox" id="autoRefresh" onchange="toggleAutoRefresh()"> Auto-refresh (5s)
             </label>
-            <div class="timestamp">Last updated: <span id="lastUpdate">{time.strftime('%Y-%m-%d %H:%M:%S')}</span></div>
+            <div class="timestamp">Last updated: <span id="lastUpdate">{time.strftime("%Y-%m-%d %H:%M:%S")}</span></div>
 
             {active_tasks_html}
         </div>
@@ -1264,7 +1284,9 @@ def create_app(
         return status
 
     @_app.post(
-        "/inference", response_model=InferenceResponse, dependencies=[Depends(_require_api_key)]
+        "/inference",
+        response_model=InferenceResponse,
+        dependencies=[Depends(_require_api_key)],
     )
     async def run_inference(request: InferenceRequest):
         """Submit inference task and return task ID."""
@@ -1284,7 +1306,9 @@ def create_app(
 
         # Create task status
         if _running_task_id is not None:
-            status_msg = f"[{task_id}] Task queued (waiting for {_running_task_id} to complete)"
+            status_msg = (
+                f"[{task_id}] Task queued (waiting for {_running_task_id} to complete)"
+            )
         else:
             status_msg = f"[{task_id}] Task submitted"
 
@@ -1347,7 +1371,9 @@ def create_app(
             "status": (
                 "healthy"
                 if gpu_memory["utilization"] < 80
-                else "warning" if gpu_memory["utilization"] < 95 else "critical"
+                else "warning"
+                if gpu_memory["utilization"] < 95
+                else "critical"
             ),
         }
 
@@ -1355,7 +1381,9 @@ def create_app(
     async def list_tasks():
         """List all tasks."""
         # Separate active and completed tasks
-        active_tasks = [task for task in _tasks.values() if task.status in ["pending", "running"]]
+        active_tasks = [
+            task for task in _tasks.values() if task.status in ["pending", "running"]
+        ]
         completed_tasks = [
             task for task in _tasks.values() if task.status in ["completed", "failed"]
         ]
@@ -1375,7 +1403,7 @@ def create_app(
             _cleanup_old_tasks()
             return {"message": "Cleanup completed", "active_tasks": len(_tasks)}
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Cleanup failed: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Cleanup failed: {e!s}")
 
     @_app.delete("/task/{task_id}")
     async def delete_task(task_id: str):
@@ -1385,7 +1413,9 @@ def create_app(
 
         # Only allow deletion of completed/failed tasks
         if _tasks[task_id].status not in ["completed", "failed"]:
-            raise HTTPException(status_code=400, detail="Cannot delete running or pending tasks")
+            raise HTTPException(
+                status_code=400, detail="Cannot delete running or pending tasks"
+            )
 
         del _tasks[task_id]
         return {"message": f"Task {task_id} deleted successfully"}
@@ -1402,7 +1432,9 @@ def create_app(
             _backend.load_model()
             return {"message": "Model reloaded successfully"}
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Failed to reload model: {str(e)}")
+            raise HTTPException(
+                status_code=500, detail=f"Failed to reload model: {e!s}"
+            )
 
     # ============================================================================
     # Gallery routes
@@ -1425,7 +1457,7 @@ def create_app(
                 return build_group_list(_gallery_dir)
             except Exception as e:
                 raise HTTPException(
-                    status_code=500, detail=f"Failed to build group list: {str(e)}"
+                    status_code=500, detail=f"Failed to build group list: {e!s}"
                 )
 
         @_app.get("/gallery/manifest/{group}.json")
@@ -1437,7 +1469,7 @@ def create_app(
                 return build_group_manifest(_gallery_dir, group)
             except Exception as e:
                 raise HTTPException(
-                    status_code=500, detail=f"Failed to build group manifest: {str(e)}"
+                    status_code=500, detail=f"Failed to build group manifest: {e!s}"
                 )
 
         @_app.get("/gallery/{path:path}")

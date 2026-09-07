@@ -22,7 +22,7 @@ _log_styles = {
 
 
 def get_style(tag):
-    if tag in _log_styles.keys():
+    if tag in _log_styles:
         return _log_styles[tag]
     return "bold blue"
 

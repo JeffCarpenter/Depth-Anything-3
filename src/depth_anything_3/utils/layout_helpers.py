@@ -22,20 +22,15 @@
 Images are assumed to be float32 tensors with shape (channel, height, width).
 """
 
-from typing import Any, Generator, Iterable, Literal, Union
+from collections.abc import Generator, Iterable
+from typing import Any, Literal, Union
+
 import torch
 from torch import Tensor
 
 Alignment = Literal["start", "center", "end"]
 Axis = Literal["horizontal", "vertical"]
-Color = Union[
-    int,
-    float,
-    Iterable[int],
-    Iterable[float],
-    Tensor,
-    Tensor,
-]
+Color = Union[int, float, Iterable[int], Iterable[float], Tensor]
 
 
 def _sanitize_color(color: Color) -> Tensor:  # "#channel"
