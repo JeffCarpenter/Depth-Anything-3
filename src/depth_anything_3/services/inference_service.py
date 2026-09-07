@@ -39,7 +39,7 @@ class InferenceService:
         """Load model"""
         if self.model is None:
             typer.echo(f"Loading model from {self.model_dir}...")
-            self.model = DepthAnything3.from_pretrained(self.model_dir).to(self.device)
+            self.model = DepthAnything3.from_pretrained(self.model_dir, device=self.device)
         return self.model
 
     def run_local_inference(

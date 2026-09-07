@@ -20,8 +20,10 @@ Clean, modular command-line interface
 from __future__ import annotations
 
 import os
+import os.path
 import typer
 
+from depth_anything_3.utils.download import download_model
 from depth_anything_3.services import start_server
 from depth_anything_3.services.gallery import gallery as gallery_main
 from depth_anything_3.services.inference_service import run_inference
@@ -52,6 +54,10 @@ app = typer.Typer(help="Depth Anything 3 - Video depth estimation CLI", add_comp
 # Supported file extensions
 IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tiff", ".tif"}
 VIDEO_EXTENSIONS = {".mp4", ".avi", ".mov", ".mkv", ".flv", ".wmv", ".webm", ".m4v"}
+
+
+def get_model(model_path: str) -> str:
+    return model_path if os.path.exists(model_path) else download_model(model_path)
 
 
 def detect_input_type(input_path: str) -> str:
@@ -113,7 +119,7 @@ def auto(
     input_path: str = typer.Argument(
         ..., help="Path to input (image, directory, video, or COLMAP)"
     ),
-    model_dir: str = typer.Option(DEFAULT_MODEL, help="Model directory path"),
+    model_path: str = typer.Option(DEFAULT_MODEL, help="Model HF/directory path"),
     export_dir: str = typer.Option(DEFAULT_EXPORT_DIR, help="Export directory"),
     export_format: str = typer.Option("glb", help="Export format"),
     device: str = typer.Option("cuda", help="Device to use"),
@@ -171,6 +177,8 @@ def auto(
     - Video file (.mp4, .avi, etc.)
     - COLMAP directory (with 'images' and 'sparse' subdirectories)
     """
+    model_dir = get_model(model_path)
+
     # Detect input type
     input_type = detect_input_type(input_path)
 
@@ -315,7 +323,7 @@ def auto(
 @app.command()
 def image(
     image_path: str = typer.Argument(..., help="Path to input image file"),
-    model_dir: str = typer.Option(DEFAULT_MODEL, help="Model directory path"),
+    model_path: str = typer.Option(DEFAULT_MODEL, help="Model HF/directory path"),
     export_dir: str = typer.Option(DEFAULT_EXPORT_DIR, help="Export directory"),
     export_format: str = typer.Option("glb", help="Export format"),
     device: str = typer.Option("cuda", help="Device to use"),
@@ -356,6 +364,8 @@ def image(
     feat_vis_fps: int = typer.Option(15, help="[FEAT_VIS] Frame rate for output video"),
 ):
     """Run camera pose and depth estimation on a single image."""
+    model_dir = get_model(model_path)
+
     # Process input
     image_files = ImageHandler.process(image_path)
 
@@ -380,7 +390,7 @@ def image(
         process_res_method=process_res_method,
         export_feat_layers=export_feat_layers,
         use_ray_pose=use_ray_pose,
-        reference_view_strategy=reference_view_strategy,
+        ref_view_strategy=ref_view_strategy,
         conf_thresh_percentile=conf_thresh_percentile,
         num_max_points=num_max_points,
         show_cameras=show_cameras,
@@ -459,7 +469,7 @@ def images(
         process_res_method=process_res_method,
         export_feat_layers=export_feat_layers,
         use_ray_pose=use_ray_pose,
-        reference_view_strategy=reference_view_strategy,
+        ref_view_strategy=ref_view_strategy,
         conf_thresh_percentile=conf_thresh_percentile,
         num_max_points=num_max_points,
         show_cameras=show_cameras,
@@ -546,7 +556,7 @@ def colmap(
         intrinsics=intrinsics,
         align_to_input_ext_scale=align_to_input_ext_scale,
         use_ray_pose=use_ray_pose,
-        reference_view_strategy=reference_view_strategy,
+        ref_view_strategy=ref_view_strategy,
         conf_thresh_percentile=conf_thresh_percentile,
         num_max_points=num_max_points,
         show_cameras=show_cameras,
@@ -623,7 +633,7 @@ def video(
         process_res_method=process_res_method,
         export_feat_layers=export_feat_layers,
         use_ray_pose=use_ray_pose,
-        reference_view_strategy=reference_view_strategy,
+        ref_view_strategy=ref_view_strategy,
         conf_thresh_percentile=conf_thresh_percentile,
         num_max_points=num_max_points,
         show_cameras=show_cameras,

@@ -25,7 +25,10 @@ from typing import Any, Dict, Optional, Tuple
 import numpy as np
 import torch
 
+from huggingface_hub import snapshot_download
+
 from depth_anything_3.api import DepthAnything3
+from depth_anything_3.utils.download import download_model
 from depth_anything_3.utils.memory import cleanup_cuda_memory
 from depth_anything_3.utils.export.glb import export_to_glb
 from depth_anything_3.utils.export.gs import export_to_gs_video
@@ -50,8 +53,7 @@ class ModelInference:
         if self.model is None:
             # Get model directory from environment variable or use default
             model_dir = os.environ.get(
-                "DA3_MODEL_DIR", "/dev/shm/da3_models/DA3HF-VITG-METRIC_VITL"
-            )
+                "DA3_MODEL_DIR", download_model("DA3-SMALL"))
             self.model = DepthAnything3.from_pretrained(model_dir)
             self.model = self.model.to(device)
         else:
