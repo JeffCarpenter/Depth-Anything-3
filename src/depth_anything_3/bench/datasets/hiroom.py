@@ -23,9 +23,9 @@ Evaluation metrics:
 - Camera pose estimation: AUC metrics
 """
 
+from __future__ import annotations
+
 import os
-from typing import Dict as TDict
-from typing import List
 
 import cv2
 import numpy as np
@@ -54,7 +54,7 @@ from depth_anything_3.utils.constants import (
 from depth_anything_3.utils.pose_align import align_poses_umeyama
 
 
-def _load_scene_list() -> List[str]:
+def _load_scene_list() -> list[str]:
     """Load scene list from file."""
     if os.path.exists(HIROOM_SCENE_LIST_PATH):
         with open(HIROOM_SCENE_LIST_PATH, "r") as f:
@@ -183,7 +183,7 @@ class HiRoomDataset(Dataset):
         self._scene_cache[scene] = out
         return out
 
-    def eval3d(self, scene: str, fuse_path: str) -> TDict[str, float]:
+    def eval3d(self, scene: str, fuse_path: str) -> dict[str, float]:
         """
         Evaluate fused point cloud against HiRoom ground truth point cloud.
 
@@ -310,7 +310,7 @@ class HiRoomDataset(Dataset):
         full_gt_data: Dict,
         image_indices: list,
         orig_sizes: list,
-        scene: str = None,
+        scene: str | None = None,
     ) -> tuple:
         """Prepare depths/intrinsics/extrinsics for recon_unposed mode."""
         # Scale alignment with fixed random_state for reproducibility
@@ -368,7 +368,7 @@ class HiRoomDataset(Dataset):
         full_gt_data: Dict,
         image_indices: list,
         orig_sizes: list,
-        scene: str = None,
+        scene: str | None = None,
     ) -> tuple:
         """Prepare depths/intrinsics/extrinsics for recon_posed mode."""
         # Scale alignment

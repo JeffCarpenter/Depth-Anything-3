@@ -341,8 +341,8 @@ class InputProcessor:
         if longest == target_size:
             return img
         scale = target_size / float(longest)
-        new_w = max(1, int(round(w * scale)))
-        new_h = max(1, int(round(h * scale)))
+        new_w = max(1, round(w * scale))
+        new_h = max(1, round(h * scale))
         interpolation = cv2.INTER_CUBIC if scale > 1.0 else cv2.INTER_AREA
         arr = cv2.resize(np.asarray(img), (new_w, new_h), interpolation=interpolation)
         return Image.fromarray(arr)
@@ -353,8 +353,8 @@ class InputProcessor:
         if shortest == target_size:
             return img
         scale = target_size / float(shortest)
-        new_w = max(1, int(round(w * scale)))
-        new_h = max(1, int(round(h * scale)))
+        new_w = max(1, round(w * scale))
+        new_h = max(1, round(h * scale))
         interpolation = cv2.INTER_CUBIC if scale > 1.0 else cv2.INTER_AREA
         arr = cv2.resize(np.asarray(img), (new_w, new_h), interpolation=interpolation)
         return Image.fromarray(arr)
@@ -425,7 +425,7 @@ if __name__ == "__main__":
         Ks_in: Sequence[np.ndarray | None] | None = None,
         Ks_out: Sequence[np.ndarray | None] | None = None,
     ):
-        B, N, C, H, W = tensor.shape
+        _B, N, _C, H, W = tensor.shape
         print(
             f"[{tag}] shape={tuple(tensor.shape)}  HxW=({H},{W})  div14=({H % 14 == 0},{W % 14 == 0})"
         )
@@ -465,7 +465,7 @@ if __name__ == "__main__":
             Es_in = [np.eye(4, dtype=np.float32), np.eye(4, dtype=np.float32)]
 
             for m in methods:
-                tensor, Es_out, Ks_out = proc(
+                tensor, _Es_out, Ks_out = proc(
                     image=batch_imgs,
                     process_res=process_res,
                     process_res_method=m,
@@ -477,7 +477,7 @@ if __name__ == "__main__":
                 show_result(f"{suite_name} size=({w},{h}) | {m}", tensor, Ks_in, Ks_out)
 
             # Also test None path
-            tensor2, Es_out2, Ks_out2 = proc(
+            tensor2, _Es_out2, Ks_out2 = proc(
                 image=batch_imgs,
                 process_res=process_res,
                 process_res_method="upper_bound_resize",

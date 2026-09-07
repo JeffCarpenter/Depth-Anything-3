@@ -8,8 +8,10 @@
 #   https://github.com/facebookresearch/dino/blob/master/vision_transformer.py
 #   https://github.com/rwightman/pytorch-image-models/tree/master/timm/layers/patch_embed.py
 
+from __future__ import annotations
+
 import logging
-from typing import Callable, Optional
+from typing import Callable
 
 import torch
 from torch import Tensor, nn
@@ -111,10 +113,10 @@ def drop_add_residual_stochastic_depth(
     x: Tensor,
     residual_func: Callable[[Tensor], Tensor],
     sample_drop_ratio: float = 0.0,
-    pos: Optional[Tensor] = None,
+    pos: Tensor | None = None,
 ) -> Tensor:
     # 1) extract subset using permutation
-    b, n, d = x.shape
+    b, _n, _d = x.shape
     sample_subset_size = max(int(b * (1 - sample_drop_ratio)), 1)
     brange = (torch.randperm(b, device=x.device))[:sample_subset_size]
     x_subset = x[brange]
@@ -140,7 +142,7 @@ def drop_add_residual_stochastic_depth(
 
 
 def get_branges_scales(x, sample_drop_ratio=0.0):
-    b, n, d = x.shape
+    b, _n, _d = x.shape
     sample_subset_size = max(int(b * (1 - sample_drop_ratio)), 1)
     brange = (torch.randperm(b, device=x.device))[:sample_subset_size]
     residual_scale_factor = b / sample_subset_size

@@ -41,7 +41,7 @@ def load_config(path, default_path=None):
         with open(default_path) as f:
             cfg = yaml.full_load(f)
     else:
-        cfg = dict()
+        cfg = {}
 
     # merge per dataset cfg. and main cfg.
     update_recursive(cfg, cfg_special)
@@ -59,7 +59,7 @@ def update_recursive(dict1, dict2):
     """
     for k, v in dict2.items():
         if k not in dict1:
-            dict1[k] = dict()
+            dict1[k] = {}
         if isinstance(v, dict):
             update_recursive(dict1[k], v)
         else:

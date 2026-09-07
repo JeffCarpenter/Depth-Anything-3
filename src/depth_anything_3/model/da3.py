@@ -116,7 +116,7 @@ class DepthAnything3Net(nn.Module):
         x: torch.Tensor,
         extrinsics: torch.Tensor | None = None,
         intrinsics: torch.Tensor | None = None,
-        export_feat_layers: list[int] | None = [],
+        export_feat_layers: list[int] | None = None,
         infer_gs: bool = False,
         use_ray_pose: bool = False,
         ref_view_strategy: str = "saddle_balanced",
@@ -137,6 +137,8 @@ class DepthAnything3Net(nn.Module):
             Dictionary containing predictions and auxiliary features
         """
         # Extract features using backbone
+        if export_feat_layers is None:
+            export_feat_layers = []
         if extrinsics is not None:
             with torch.autocast(device_type=x.device.type, enabled=False):
                 cam_token = self.cam_enc(extrinsics, intrinsics, x.shape[-2:])
@@ -370,7 +372,7 @@ class NestedDepthAnything3Net(nn.Module):
         x: torch.Tensor,
         extrinsics: torch.Tensor | None = None,
         intrinsics: torch.Tensor | None = None,
-        export_feat_layers: list[int] | None = [],
+        export_feat_layers: list[int] | None = None,
         infer_gs: bool = False,
         use_ray_pose: bool = False,
         ref_view_strategy: str = "saddle_balanced",
@@ -391,6 +393,8 @@ class NestedDepthAnything3Net(nn.Module):
             Dictionary containing aligned depth predictions and camera parameters
         """
         # Get predictions from both branches
+        if export_feat_layers is None:
+            export_feat_layers = []
         output = self.da3(
             x,
             extrinsics,

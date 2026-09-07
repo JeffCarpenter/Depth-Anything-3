@@ -17,6 +17,8 @@ Model backend service for Depth Anything 3.
 Provides HTTP API for model inference with persistent model loading.
 """
 
+from __future__ import annotations
+
 import hmac
 import html
 import os
@@ -26,7 +28,7 @@ import secrets
 import time
 import uuid
 from concurrent.futures import ThreadPoolExecutor
-from typing import Any, Dict, List, Optional
+from typing import Any
 from urllib.parse import quote
 
 import numpy as np
@@ -48,14 +50,14 @@ from ..utils.memory import (
 class InferenceRequest(BaseModel):
     """Request model for inference API."""
 
-    image_paths: List[str]
-    export_dir: Optional[str] = None
+    image_paths: list[str]
+    export_dir: str | None = None
     export_format: str = "mini_npz-glb"
-    extrinsics: Optional[List[List[List[float]]]] = None
-    intrinsics: Optional[List[List[List[float]]]] = None
+    extrinsics: list[list[list[float]]] | None = None
+    intrinsics: list[list[list[float]]] | None = None
     process_res: int = 504
     process_res_method: str = "upper_bound_resize"
-    export_feat_layers: List[int] = []
+    export_feat_layers: list[int] = []
     align_to_input_ext_scale: bool = True
     # GLB export parameters
     conf_thresh_percentile: float = 40.0
@@ -84,10 +86,10 @@ class InferenceResponse(BaseModel):
 
     success: bool
     message: str
-    task_id: Optional[str] = None
-    export_dir: Optional[str] = None
+    task_id: str | None = None
+    export_dir: str | None = None
     export_format: str = "mini_npz-glb"
-    processing_time: Optional[float] = None
+    processing_time: float | None = None
 
 
 class TaskStatus(BaseModel):
@@ -96,21 +98,21 @@ class TaskStatus(BaseModel):
     task_id: str
     status: str  # "pending", "running", "completed", "failed"
     message: str
-    progress: Optional[float] = None  # 0.0 to 1.0
+    progress: float | None = None  # 0.0 to 1.0
     created_at: float
-    started_at: Optional[float] = None
-    completed_at: Optional[float] = None
-    export_dir: Optional[str] = None
-    request: Optional[InferenceRequest] = None  # Store the original request
+    started_at: float | None = None
+    completed_at: float | None = None
+    export_dir: str | None = None
+    request: InferenceRequest | None = None  # Store the original request
 
     # Essential task parameters
-    num_images: Optional[int] = None  # Number of input images
-    export_format: Optional[str] = None  # Export format
-    process_res_method: Optional[str] = None  # Processing resolution method
-    video_path: Optional[str] = None  # Source video path
+    num_images: int | None = None  # Number of input images
+    export_format: str | None = None  # Export format
+    process_res_method: str | None = None  # Processing resolution method
+    video_path: str | None = None  # Source video path
 
 
-def _render_task_card(task: "TaskStatus", css_class: str) -> str:
+def _render_task_card(task: TaskStatus, css_class: str) -> str:
     """Render a single task as an HTML fragment for the dashboard.
 
     Every field is HTML-escaped: task fields originate from a client request and
@@ -179,7 +181,7 @@ class ModelBackend:
 
         except Exception as e:
             print(f"Failed to load model: {e}")
-            raise e
+            raise
 
     def get_model(self):
         """Get model, loading if necessary."""
@@ -188,7 +190,7 @@ class ModelBackend:
         self.last_used = time.time()
         return self.model
 
-    def get_status(self) -> Dict[str, Any]:
+    def get_status(self) -> dict[str, Any]:
         """Get backend status information."""
         # Calculate uptime from when model loading completed
         uptime = 0
@@ -206,13 +208,13 @@ class ModelBackend:
 
 
 # Global backend instance
-_backend: Optional[ModelBackend] = None
-_app: Optional[FastAPI] = None
-_gallery_dir: Optional[str] = None
-_tasks: Dict[str, TaskStatus] = {}
+_backend: ModelBackend | None = None
+_app: FastAPI | None = None
+_gallery_dir: str | None = None
+_tasks: dict[str, TaskStatus] = {}
 _executor = ThreadPoolExecutor(max_workers=1)  # Restrict to single-task execution
-_running_task_id: Optional[str] = None  # Currently running task ID
-_task_queue: List[str] = []  # Pending task queue
+_running_task_id: str | None = None  # Currently running task ID
+_task_queue: list[str] = []  # Pending task queue
 
 # Task cleanup configuration
 MAX_TASK_HISTORY = 100  # Maximum number of tasks to keep in memory
@@ -636,9 +638,7 @@ _EXPORT_DIR_METACHAR_RE = re.compile(r"[;&|`$\n\r<>\x00]")
 _LOOPBACK_HOSTS = {"127.0.0.1", "localhost", "::1", "0:0:0:0:0:0:0:1"}
 
 
-def validate_export_dir(
-    export_dir: Optional[str], gallery_dir: Optional[str]
-) -> Optional[str]:
+def validate_export_dir(export_dir: str | None, gallery_dir: str | None) -> str | None:
     """Validate a client-supplied export_dir before it reaches any inference/export code.
 
     export_dir must be a simple relative path that resolves within the server's
@@ -677,8 +677,8 @@ def validate_export_dir(
 def create_app(
     model_dir: str,
     device: str = "cuda",
-    gallery_dir: Optional[str] = None,
-    api_key: Optional[str] = None,
+    gallery_dir: str | None = None,
+    api_key: str | None = None,
 ) -> FastAPI:
     """Create FastAPI application with model backend.
 
@@ -704,7 +704,7 @@ def create_app(
     _api_key = api_key or os.environ.get("DA3_BACKEND_API_KEY")
 
     async def _require_api_key(
-        x_api_key: Optional[str] = Header(default=None, alias="X-API-Key"),
+        x_api_key: str | None = Header(default=None, alias="X-API-Key"),
     ):
         """FastAPI dependency enforcing the API key when one is configured."""
         if _api_key and not hmac.compare_digest(x_api_key or "", _api_key):
@@ -1501,8 +1501,8 @@ def start_server(
     device: str = "cuda",
     host: str = "127.0.0.1",
     port: int = 8000,
-    gallery_dir: Optional[str] = None,
-    api_key: Optional[str] = None,
+    gallery_dir: str | None = None,
+    api_key: str | None = None,
     allow_unauthenticated: bool = False,
 ):
     """Start the backend server."""

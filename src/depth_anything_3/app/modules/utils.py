@@ -19,16 +19,18 @@ This module contains helper functions for data processing, visualization,
 and file operations.
 """
 
+from __future__ import annotations
+
 import json
 import os
 import shutil
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 
 
-def create_depth_visualization(depth: np.ndarray) -> Optional[np.ndarray]:
+def create_depth_visualization(depth: np.ndarray) -> np.ndarray | None:
     """
     Create a colored depth visualization.
 
@@ -64,9 +66,9 @@ def create_depth_visualization(depth: np.ndarray) -> Optional[np.ndarray]:
 
 def save_to_gallery_func(
     target_dir: str,
-    processed_data: Dict[int, Dict[str, Any]],
-    gallery_name: Optional[str] = None,
-) -> Tuple[bool, str]:
+    processed_data: dict[int, dict[str, Any]],
+    gallery_name: str | None = None,
+) -> tuple[bool, str]:
     """
     Save the current reconstruction results to the gallery directory.
 
@@ -141,7 +143,7 @@ def save_to_gallery_func(
         return False, f"Save failed: {e!s}"
 
 
-def get_scene_info(examples_dir: str) -> List[Dict[str, Any]]:
+def get_scene_info(examples_dir: str) -> list[dict[str, Any]]:
     """
     Get information about scenes in the examples directory.
 
@@ -191,7 +193,7 @@ def get_scene_info(examples_dir: str) -> List[Dict[str, Any]]:
 # Callers should import and call that directly instead of using this module.
 
 
-def get_logo_base64() -> Optional[str]:
+def get_logo_base64() -> str | None:
     """
     Convert WAI logo to base64 for embedding in HTML.
 

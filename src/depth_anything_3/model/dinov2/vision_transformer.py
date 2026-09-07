@@ -7,9 +7,11 @@
 #   https://github.com/facebookresearch/dino/blob/main/vision_transformer.py
 #   https://github.com/rwightman/pytorch-image-models/tree/master/timm/models/vision_transformer.py
 
+from __future__ import annotations
+
 import math
 from collections.abc import Sequence
-from typing import Callable, List, Tuple, Union
+from typing import Callable
 
 import numpy as np
 import torch
@@ -65,7 +67,7 @@ def named_apply(
     if not depth_first and include_root:
         fn(module=module, name=name)
     for child_name, child_module in module.named_children():
-        child_name = ".".join((name, child_name)) if name else child_name
+        child_name = f"{name}.{child_name}" if name else child_name
         named_apply(
             fn=fn,
             module=child_module,
@@ -275,7 +277,7 @@ class DinoVisionTransformer(nn.Module):
         return cls_token
 
     def prepare_tokens_with_masks(self, x, masks=None, cls_token=None, **kwargs):
-        B, S, nc, w, h = x.shape
+        B, S, _nc, w, h = x.shape
         x = rearrange(x, "b s c h w -> (b s) c h w")
         x = self.patch_embed(x)
         if masks is not None:
@@ -318,8 +320,10 @@ class DinoVisionTransformer(nn.Module):
         return pos, pos_nodiff
 
     def _get_intermediate_layers_not_chunked(
-        self, x, n=1, export_feat_layers=[], **kwargs
+        self, x, n=1, export_feat_layers=None, **kwargs
     ):
+        if export_feat_layers is None:
+            export_feat_layers = []
         B, S, _, H, W = x.shape
         x = self.prepare_tokens_with_masks(x)
         output, total_block_len, aux_output = [], len(self.blocks), []
@@ -382,7 +386,7 @@ class DinoVisionTransformer(nn.Module):
         return output, aux_output
 
     def process_attention(self, x, block, attn_type="global", pos=None, attn_mask=None):
-        b, s, n = x.shape[:3]
+        b, s, _n = x.shape[:3]
         if attn_type == "local":
             x = rearrange(x, "b s n c -> (b s) n c")
             if pos is not None:
@@ -405,10 +409,12 @@ class DinoVisionTransformer(nn.Module):
     def get_intermediate_layers(
         self,
         x: torch.Tensor,
-        n: Union[int, Sequence] = 1,  # Layers or n last layers to take
-        export_feat_layers: List[int] = [],
+        n: int | Sequence = 1,  # Layers or n last layers to take
+        export_feat_layers: list[int] | None = None,
         **kwargs,
-    ) -> Tuple[Union[torch.Tensor, Tuple[torch.Tensor]]]:
+    ) -> tuple[torch.Tensor | tuple[torch.Tensor]]:
+        if export_feat_layers is None:
+            export_feat_layers = []
         outputs, aux_outputs = self._get_intermediate_layers_not_chunked(
             x, n, export_feat_layers=export_feat_layers, **kwargs
         )

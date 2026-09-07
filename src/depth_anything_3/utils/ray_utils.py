@@ -41,7 +41,7 @@ def compute_optimal_rotation_intrinsics_batch(
         principal_point (torch.tensor): (2,)
     """
     device = rays_origin.device
-    B, N, _ = rays_origin.shape
+    _B, _N, _ = rays_origin.shape
     z_mask = torch.logical_and(
         torch.abs(rays_target[:, :, 2]) > z_threshold,
         torch.abs(rays_origin[:, :, 2]) > z_threshold,
@@ -229,7 +229,7 @@ def find_homography_least_squares_weighted_torch_batch(
     confident_weight_batch: (B, K)
     Returns: (B, 3, 3)
     """
-    B, K, _ = src_pts_batch.shape
+    B, _K, _ = src_pts_batch.shape
     w = confident_weight_batch.sqrt().unsqueeze(2)  # (B,K,1)
     x = src_pts_batch[:, :, 0:1]
     y = src_pts_batch[:, :, 1:2]

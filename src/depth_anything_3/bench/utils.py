@@ -21,8 +21,7 @@ Contains:
 - Geometry utilities (quaternion conversion, etc.)
 """
 
-from typing import Dict as TDict
-from typing import Optional, Union
+from __future__ import annotations
 
 import numpy as np
 import open3d as o3d
@@ -89,11 +88,11 @@ def nn_correspondance(verts1: np.ndarray, verts2: np.ndarray) -> np.ndarray:
 
 
 def evaluate_3d_reconstruction(
-    pcd_pred: Union[o3d.geometry.PointCloud, np.ndarray],
-    pcd_trgt: Union[o3d.geometry.PointCloud, np.ndarray],
+    pcd_pred: o3d.geometry.PointCloud | np.ndarray,
+    pcd_trgt: o3d.geometry.PointCloud | np.ndarray,
     threshold: float = 0.05,
-    down_sample: Optional[float] = None,
-) -> TDict[str, float]:
+    down_sample: float | None = None,
+) -> dict[str, float]:
     """
     Evaluate 3D reconstruction quality using standard metrics.
 
@@ -350,7 +349,7 @@ def align_to_first_camera(camera_poses: torch.Tensor) -> torch.Tensor:
 def rotation_angle(
     rot_gt: torch.Tensor,
     rot_pred: torch.Tensor,
-    batch_size: int = None,
+    batch_size: int | None = None,
     eps: float = 1e-15,
 ) -> torch.Tensor:
     """
@@ -382,7 +381,7 @@ def rotation_angle(
 def translation_angle(
     tvec_gt: torch.Tensor,
     tvec_pred: torch.Tensor,
-    batch_size: int = None,
+    batch_size: int | None = None,
     ambiguity: bool = True,
 ) -> torch.Tensor:
     """

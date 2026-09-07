@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List
 
 import numpy as np
 import torch
@@ -25,7 +24,7 @@ def batch_apply_alignment_to_enc(
     rots: torch.Tensor,
     trans: torch.Tensor,
     scales: torch.Tensor,
-    enc_list: List[torch.Tensor],
+    enc_list: list[torch.Tensor],
 ):
     pass
 

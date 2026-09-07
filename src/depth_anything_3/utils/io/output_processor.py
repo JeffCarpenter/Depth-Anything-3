@@ -164,7 +164,7 @@ class OutputProcessor:
         aux = model_output.get("aux", None)
         ret = AddictDict()
         if aux is not None:
-            for k in aux.keys():
+            for k in aux:
                 if isinstance(aux[k], torch.Tensor):
                     ret[k] = aux[k].squeeze(0).cpu().numpy()
                 else:

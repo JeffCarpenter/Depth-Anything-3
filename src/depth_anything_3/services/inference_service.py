@@ -17,8 +17,10 @@ Unified Inference Service
 Provides unified interface for local and remote inference
 """
 
+from __future__ import annotations
+
 import os
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import numpy as np
 import requests
@@ -46,14 +48,14 @@ class InferenceService:
 
     def run_local_inference(
         self,
-        image_paths: List[str],
+        image_paths: list[str],
         export_dir: str,
         export_format: str = "mini_npz-glb",
         process_res: int = 504,
         process_res_method: str = "upper_bound_resize",
-        export_feat_layers: List[int] = None,
-        extrinsics: Optional[np.ndarray] = None,
-        intrinsics: Optional[np.ndarray] = None,
+        export_feat_layers: list[int] | None = None,
+        extrinsics: np.ndarray | None = None,
+        intrinsics: np.ndarray | None = None,
         align_to_input_ext_scale: bool = True,
         use_ray_pose: bool = False,
         ref_view_strategy: str = "saddle_balanced",
@@ -102,15 +104,15 @@ class InferenceService:
 
     def run_backend_inference(
         self,
-        image_paths: List[str],
+        image_paths: list[str],
         export_dir: str,
         backend_url: str,
         export_format: str = "mini_npz-glb",
         process_res: int = 504,
         process_res_method: str = "upper_bound_resize",
-        export_feat_layers: List[int] = None,
-        extrinsics: Optional[np.ndarray] = None,
-        intrinsics: Optional[np.ndarray] = None,
+        export_feat_layers: list[int] | None = None,
+        extrinsics: np.ndarray | None = None,
+        intrinsics: np.ndarray | None = None,
         align_to_input_ext_scale: bool = True,
         use_ray_pose: bool = False,
         ref_view_strategy: str = "saddle_balanced",
@@ -118,7 +120,7 @@ class InferenceService:
         num_max_points: int = 1_000_000,
         show_cameras: bool = True,
         feat_vis_fps: int = 15,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Run backend inference"""
         if export_feat_layers is None:
             export_feat_layers = []
@@ -193,17 +195,17 @@ class InferenceService:
 
 
 def run_inference(
-    image_paths: List[str],
+    image_paths: list[str],
     export_dir: str,
     model_dir: str,
     device: str = "cuda",
-    backend_url: Optional[str] = None,
+    backend_url: str | None = None,
     export_format: str = "mini_npz-glb",
     process_res: int = 504,
     process_res_method: str = "upper_bound_resize",
-    export_feat_layers: List[int] = None,
-    extrinsics: Optional[np.ndarray] = None,
-    intrinsics: Optional[np.ndarray] = None,
+    export_feat_layers: list[int] | None = None,
+    extrinsics: np.ndarray | None = None,
+    intrinsics: np.ndarray | None = None,
     align_to_input_ext_scale: bool = True,
     use_ray_pose: bool = False,
     ref_view_strategy: str = "saddle_balanced",
@@ -211,7 +213,7 @@ def run_inference(
     num_max_points: int = 1_000_000,
     show_cameras: bool = True,
     feat_vis_fps: int = 15,
-) -> Union[Any, Dict[str, Any]]:
+) -> Any | dict[str, Any]:
     """Unified inference interface"""
 
     service = InferenceService(model_dir, device)

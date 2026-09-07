@@ -18,8 +18,10 @@ Visualization module for Depth Anything 3 Gradio app.
 This module handles visualization updates, navigation, and measurement functionality.
 """
 
+from __future__ import annotations
+
 import os
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import cv2
 import gradio as gr
@@ -35,8 +37,8 @@ class VisualizationHandler:
         """Initialize the visualization handler."""
 
     def update_view_selectors(
-        self, processed_data: Optional[Dict[int, Dict[str, Any]]]
-    ) -> Tuple[gr.Dropdown, gr.Dropdown]:
+        self, processed_data: dict[int, dict[str, Any]] | None
+    ) -> tuple[gr.Dropdown, gr.Dropdown]:
         """
         Update view selector dropdowns based on available views.
 
@@ -58,8 +60,8 @@ class VisualizationHandler:
         )
 
     def get_view_data_by_index(
-        self, processed_data: Optional[Dict[int, Dict[str, Any]]], view_index: int
-    ) -> Optional[Dict[str, Any]]:
+        self, processed_data: dict[int, dict[str, Any]] | None, view_index: int
+    ) -> dict[str, Any] | None:
         """
         Get view data by index, handling bounds.
 
@@ -80,8 +82,8 @@ class VisualizationHandler:
         return processed_data[view_keys[view_index]]
 
     def update_depth_view(
-        self, processed_data: Optional[Dict[int, Dict[str, Any]]], view_index: int
-    ) -> Optional[str]:
+        self, processed_data: dict[int, dict[str, Any]] | None, view_index: int
+    ) -> str | None:
         """
         Update depth view for a specific view index.
 
@@ -101,10 +103,10 @@ class VisualizationHandler:
 
     def navigate_depth_view(
         self,
-        processed_data: Optional[Dict[int, Dict[str, Any]]],
+        processed_data: dict[int, dict[str, Any]] | None,
         current_selector_value: str,
         direction: int,
-    ) -> Tuple[str, Optional[str]]:
+    ) -> tuple[str, str | None]:
         """
         Navigate depth view (direction: -1 for previous, +1 for next).
 
@@ -134,8 +136,8 @@ class VisualizationHandler:
         return new_selector_value, depth_vis
 
     def update_measure_view(
-        self, processed_data: Optional[Dict[int, Dict[str, Any]]], view_index: int
-    ) -> Tuple[Optional[np.ndarray], Optional[np.ndarray], List]:
+        self, processed_data: dict[int, dict[str, Any]] | None, view_index: int
+    ) -> tuple[np.ndarray | None, np.ndarray | None, list]:
         """
         Update measure view for a specific view index.
 
@@ -173,7 +175,7 @@ class VisualizationHandler:
                 depth_combined = cv2.imread(depth_image_path)
                 depth_combined = cv2.cvtColor(depth_combined, cv2.COLOR_BGR2RGB)
                 if depth_combined is not None:
-                    height, width = depth_combined.shape[:2]
+                    _height, width = depth_combined.shape[:2]
                     # Extract right half (depth visualization part)
                     depth_right_half = depth_combined[:, width // 2 :]
             except Exception as e:
@@ -183,10 +185,10 @@ class VisualizationHandler:
 
     def navigate_measure_view(
         self,
-        processed_data: Optional[Dict[int, Dict[str, Any]]],
+        processed_data: dict[int, dict[str, Any]] | None,
         current_selector_value: str,
         direction: int,
-    ) -> Tuple[str, Optional[np.ndarray], Optional[str], List]:
+    ) -> tuple[str, np.ndarray | None, str | None, list]:
         """
         Navigate measure view (direction: -1 for previous, +1 for next).
 
@@ -218,8 +220,8 @@ class VisualizationHandler:
         return new_selector_value, measure_image, depth_right_half, measure_points
 
     def populate_visualization_tabs(
-        self, processed_data: Optional[Dict[int, Dict[str, Any]]]
-    ) -> Tuple[Optional[str], Optional[np.ndarray], Optional[str], List]:
+        self, processed_data: dict[int, dict[str, Any]] | None
+    ) -> tuple[str | None, np.ndarray | None, str | None, list]:
         """
         Populate the depth and measure tabs with processed data.
 
@@ -239,8 +241,8 @@ class VisualizationHandler:
         return depth_vis, measure_img, depth_right_half, []
 
     def reset_measure(
-        self, processed_data: Optional[Dict[int, Dict[str, Any]]]
-    ) -> Tuple[Optional[np.ndarray], List, str]:
+        self, processed_data: dict[int, dict[str, Any]] | None
+    ) -> tuple[np.ndarray | None, list, str]:
         """
         Reset measure points.
 
@@ -254,16 +256,16 @@ class VisualizationHandler:
             return None, [], ""
 
         # Return the first view image
-        first_view = list(processed_data.values())[0]
+        first_view = next(iter(processed_data.values()))
         return first_view["image"], [], ""
 
     def measure(
         self,
-        processed_data: Optional[Dict[int, Dict[str, Any]]],
-        measure_points: List,
+        processed_data: dict[int, dict[str, Any]] | None,
+        measure_points: list,
         current_view_selector: str,
         event: gr.SelectData,
-    ) -> List:
+    ) -> list:
         """
         Handle measurement on images.
 

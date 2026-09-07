@@ -22,7 +22,6 @@ from __future__ import annotations
 
 import time
 from collections.abc import Sequence
-from typing import Optional
 
 import numpy as np
 import torch
@@ -164,7 +163,7 @@ class DepthAnything3(nn.Module, PyTorchModelHubMixin):
         # Feat_vis export parameters
         feat_vis_fps: int = 15,
         # Other export parameters, e.g., gs_ply, gs_video
-        export_kwargs: Optional[dict] = {},
+        export_kwargs: dict | None = None,
     ) -> Prediction:
         """
         Run inference on input images.
@@ -196,6 +195,8 @@ class DepthAnything3(nn.Module, PyTorchModelHubMixin):
         Returns:
             Prediction object containing depth maps and camera parameters
         """
+        if export_kwargs is None:
+            export_kwargs = {}
         if "gs" in export_format:
             assert infer_gs, "must set `infer_gs=True` to perform gs-related export."
 

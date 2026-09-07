@@ -16,16 +16,14 @@
 Model loading and state dict conversion utilities.
 """
 
-from typing import Dict, Tuple
-
 import torch
 
 from depth_anything_3.utils.logger import logger
 
 
 def convert_general_state_dict(
-    state_dict: Dict[str, torch.Tensor],
-) -> Dict[str, torch.Tensor]:
+    state_dict: dict[str, torch.Tensor],
+) -> dict[str, torch.Tensor]:
     """
     Convert general model state dict to match current model architecture.
 
@@ -83,8 +81,8 @@ def convert_general_state_dict(
 
 
 def convert_metric_state_dict(
-    state_dict: Dict[str, torch.Tensor],
-) -> Dict[str, torch.Tensor]:
+    state_dict: dict[str, torch.Tensor],
+) -> dict[str, torch.Tensor]:
     """
     Convert metric model state dict to match current model architecture.
 
@@ -101,7 +99,7 @@ def convert_metric_state_dict(
 
 def load_pretrained_weights(
     model, model_path: str, is_metric: bool = False
-) -> Tuple[list, list]:
+) -> tuple[list, list]:
     """
     Load pretrained weights for a single model.
 
@@ -129,7 +127,7 @@ def load_pretrained_weights(
 
 def load_pretrained_nested_weights(
     model, main_model_path: str, metric_model_path: str
-) -> Tuple[list, list]:
+) -> tuple[list, list]:
     """
     Load pretrained weights for a nested model with both main and metric branches.
 

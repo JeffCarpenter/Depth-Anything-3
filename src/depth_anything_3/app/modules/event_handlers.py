@@ -18,10 +18,12 @@ Event handling module for Depth Anything 3 Gradio app.
 This module handles all event callbacks and user interactions.
 """
 
+from __future__ import annotations
+
 import os
 import time
 from glob import glob
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import gradio as gr
 import numpy as np
@@ -63,7 +65,7 @@ class EventHandlers:
         show_cam: bool,
         filter_black_bg: bool,
         filter_white_bg: bool,
-        processed_data: Optional[Dict],
+        processed_data: dict | None,
         scene_name: str = "",
     ) -> str:
         """
@@ -150,15 +152,15 @@ class EventHandlers:
         ref_view_strategy: str = "saddle_balanced",
         gs_trj_mode: str = "extend",
         gs_video_quality: str = "high",
-    ) -> Tuple[
-        Optional[str],
+    ) -> tuple[
+        str | None,
         str,
-        Optional[Dict],
-        Optional[np.ndarray],
-        Optional[np.ndarray],
+        dict | None,
+        np.ndarray | None,
+        np.ndarray | None,
         str,
         gr.Dropdown,
-        Optional[str],  # gs video path
+        str | None,  # gs video path
         gr.update,  # gs video visibility update
         gr.update,  # gs info visibility update
     ]:
@@ -208,7 +210,7 @@ class EventHandlers:
         print(f"Reference view strategy: {ref_view_strategy}")
 
         with torch.no_grad():
-            prediction, processed_data = self.model_inference.run_inference(
+            _prediction, processed_data = self.model_inference.run_inference(
                 target_dir,
                 process_res_method=process_res_method,
                 show_camera=show_cam,
@@ -230,9 +232,7 @@ class EventHandlers:
 
         if infer_gs:
             try:
-                gsvideo_path = sorted(
-                    glob(os.path.join(target_dir, "gs_video", "*.mp4"))
-                )[-1]
+                gsvideo_path = max(glob(os.path.join(target_dir, "gs_video", "*.mp4")))
                 gs_video_visible = True
                 gs_info_visible = False
             except IndexError:
@@ -247,12 +247,12 @@ class EventHandlers:
         log_msg = f"Reconstruction Success ({len(all_files)} frames). Waiting for visualization."
 
         # Populate visualization tabs with processed data
-        depth_vis, measure_img, measure_depth_vis, measure_pts = (
+        _depth_vis, measure_img, measure_depth_vis, _measure_pts = (
             self.visualization_handler.populate_visualization_tabs(processed_data)
         )
 
         # Update view selectors based on available views
-        depth_selector, measure_selector = (
+        _depth_selector, measure_selector = (
             self.visualization_handler.update_view_selectors(processed_data)
         )
 
@@ -277,7 +277,7 @@ class EventHandlers:
         filter_black_bg: bool = False,
         filter_white_bg: bool = False,
         process_res_method: str = "upper_bound_resize",
-    ) -> Tuple[gr.update, str]:
+    ) -> tuple[gr.update, str]:
         """
         Reload saved predictions from npz, create (or reuse) the GLB for new parameters,
         and return it for the 3D viewer.
@@ -329,7 +329,7 @@ class EventHandlers:
 
         try:
             loaded = np.load(predictions_path, allow_pickle=False)
-            predictions = {key: loaded[key] for key in loaded.keys()}  # noqa: F841
+            predictions = {key: loaded[key] for key in loaded}  # noqa: F841
         except Exception as e:
             return gr.update(), f"Cached results could not be read: {e}"
 
@@ -340,10 +340,10 @@ class EventHandlers:
 
     def handle_uploads(
         self,
-        input_video: Optional[str],
-        input_images: Optional[List],
+        input_video: str | None,
+        input_images: list | None,
         s_time_interval: float = 10.0,
-    ) -> Tuple[Optional[str], Optional[str], Optional[List], Optional[str]]:
+    ) -> tuple[str | None, str | None, list | None, str | None]:
         """
         Handle file uploads and update gallery.
 
@@ -360,15 +360,15 @@ class EventHandlers:
         )
 
     def load_example_scene(
-        self, scene_name: str, examples_dir: str = None
-    ) -> Tuple[
-        Optional[str],
-        Optional[str],
-        Optional[List],
+        self, scene_name: str, examples_dir: str | None = None
+    ) -> tuple[
+        str | None,
+        str | None,
+        list | None,
         str,
-        Optional[Dict],
+        dict | None,
         gr.Dropdown,
-        Optional[str],
+        str | None,
         gr.update,
         gr.update,
     ]:
@@ -404,7 +404,7 @@ class EventHandlers:
                 try:
                     # Load predictions from cache
                     loaded = np.load(predictions_path, allow_pickle=False)
-                    predictions = {key: loaded[key] for key in loaded.keys()}
+                    predictions = {key: loaded[key] for key in loaded}
 
                     # Reconstruct processed_data structure
                     num_images = len(predictions.get("images", []))
@@ -470,10 +470,10 @@ class EventHandlers:
 
     def navigate_depth_view(
         self,
-        processed_data: Optional[Dict[int, Dict[str, Any]]],
+        processed_data: dict[int, dict[str, Any]] | None,
         current_selector: str,
         direction: int,
-    ) -> Tuple[str, Optional[str]]:
+    ) -> tuple[str, str | None]:
         """
         Navigate depth view.
 
@@ -490,8 +490,8 @@ class EventHandlers:
         )
 
     def update_depth_view(
-        self, processed_data: Optional[Dict[int, Dict[str, Any]]], view_index: int
-    ) -> Optional[str]:
+        self, processed_data: dict[int, dict[str, Any]] | None, view_index: int
+    ) -> str | None:
         """
         Update depth view for a specific view index.
 
@@ -506,10 +506,10 @@ class EventHandlers:
 
     def navigate_measure_view(
         self,
-        processed_data: Optional[Dict[int, Dict[str, Any]]],
+        processed_data: dict[int, dict[str, Any]] | None,
         current_selector: str,
         direction: int,
-    ) -> Tuple[str, Optional[np.ndarray], Optional[np.ndarray], List]:
+    ) -> tuple[str, np.ndarray | None, np.ndarray | None, list]:
         """
         Navigate measure view.
 
@@ -526,8 +526,8 @@ class EventHandlers:
         )
 
     def update_measure_view(
-        self, processed_data: Optional[Dict[int, Dict[str, Any]]], view_index: int
-    ) -> Tuple[Optional[np.ndarray], Optional[np.ndarray], List]:
+        self, processed_data: dict[int, dict[str, Any]] | None, view_index: int
+    ) -> tuple[np.ndarray | None, np.ndarray | None, list]:
         """
         Update measure view for a specific view index.
 
@@ -544,11 +544,11 @@ class EventHandlers:
 
     def measure(
         self,
-        processed_data: Optional[Dict[int, Dict[str, Any]]],
-        measure_points: List,
+        processed_data: dict[int, dict[str, Any]] | None,
+        measure_points: list,
         current_view_selector: str,
         event: gr.SelectData,
-    ) -> List:
+    ) -> list:
         """
         Handle measurement on images.
 
@@ -566,8 +566,8 @@ class EventHandlers:
         )
 
     def select_first_frame(
-        self, image_gallery: List, selected_index: int = 0
-    ) -> Tuple[List, str, str]:
+        self, image_gallery: list, selected_index: int = 0
+    ) -> tuple[list, str, str]:
         """
         Select the first frame from the image gallery.
 

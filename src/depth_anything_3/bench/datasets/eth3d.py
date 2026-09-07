@@ -24,8 +24,9 @@ Evaluation metrics:
 - Camera pose estimation: AUC metrics
 """
 
+from __future__ import annotations
+
 import os
-from typing import Dict as TDict
 
 import cv2
 import numpy as np
@@ -279,7 +280,7 @@ class ETH3D(Dataset):
         self._scene_cache[scene] = out
         return out
 
-    def eval3d(self, scene: str, fuse_path: str) -> TDict[str, float]:
+    def eval3d(self, scene: str, fuse_path: str) -> dict[str, float]:
         """
         Evaluate fused point cloud against ETH3D ground truth mesh.
 
@@ -333,9 +334,7 @@ class ETH3D(Dataset):
                 {
                     "extrinsics": data["extrinsics"],
                     "intrinsics": data["intrinsics"],
-                    "image_files": data["image_files"]
-                    if "image_files" in data
-                    else None,
+                    "image_files": data.get("image_files", None),
                 }
             )
         return None
@@ -410,7 +409,7 @@ class ETH3D(Dataset):
     # ------------------------------
 
     def _prep_unposed(
-        self, pred_data: Dict, gt_data: Dict, orig_sizes: list, scene: str = None
+        self, pred_data: Dict, gt_data: Dict, orig_sizes: list, scene: str | None = None
     ) -> tuple:
         """
         Prepare depths/intrinsics/extrinsics for recon_unposed mode.
@@ -473,7 +472,7 @@ class ETH3D(Dataset):
         return np.stack(depths_out), np.stack(intrinsics_out), extrinsics
 
     def _prep_posed(
-        self, pred_data: Dict, gt_data: Dict, orig_sizes: list, scene: str = None
+        self, pred_data: Dict, gt_data: Dict, orig_sizes: list, scene: str | None = None
     ) -> tuple:
         """
         Prepare depths/intrinsics/extrinsics for recon_posed mode.

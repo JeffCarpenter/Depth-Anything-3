@@ -19,7 +19,6 @@ Handles different types of inputs (image, images, colmap, video)
 
 import glob
 import os
-from typing import List, Tuple
 
 import cv2
 import numpy as np
@@ -68,7 +67,7 @@ class ImageHandler(InputHandler):
     """Single image handler"""
 
     @staticmethod
-    def process(image_path: str) -> List[str]:
+    def process(image_path: str) -> list[str]:
         """Process single image"""
         InputHandler.validate_path(image_path, "Image file")
         return [image_path]
@@ -78,7 +77,7 @@ class ImagesHandler(InputHandler):
     """Image directory handler"""
 
     @staticmethod
-    def process(images_dir: str, image_extensions: str = "png,jpg,jpeg") -> List[str]:
+    def process(images_dir: str, image_extensions: str = "png,jpg,jpeg") -> list[str]:
         """Process image directory"""
         InputHandler.validate_path(images_dir, "Images directory")
 
@@ -93,7 +92,7 @@ class ImagesHandler(InputHandler):
             image_files.extend(glob.glob(os.path.join(images_dir, pattern)))
             image_files.extend(glob.glob(os.path.join(images_dir, pattern.upper())))
 
-        image_files = sorted(list(set(image_files)))  # Remove duplicates and sort
+        image_files = sorted(set(image_files))  # Remove duplicates and sort
 
         if not image_files:
             raise typer.BadParameter(
@@ -110,7 +109,7 @@ class ColmapHandler(InputHandler):
     @staticmethod
     def process(
         colmap_dir: str, sparse_subdir: str = ""
-    ) -> Tuple[List[str], np.ndarray, np.ndarray]:
+    ) -> tuple[list[str], np.ndarray, np.ndarray]:
         """Process COLMAP data"""
         InputHandler.validate_path(colmap_dir, "COLMAP directory")
 
@@ -139,7 +138,7 @@ class ColmapHandler(InputHandler):
             extrinsics = []
             intrinsics = []
 
-            for image_id, image_data in images.items():
+            for image_data in images.values():
                 image_name = image_data.name
                 image_path = os.path.join(images_dir, image_name)
 
@@ -189,7 +188,7 @@ class VideoHandler(InputHandler):
     """Video handler"""
 
     @staticmethod
-    def process(video_path: str, output_dir: str, fps: float = 1.0) -> List[str]:
+    def process(video_path: str, output_dir: str, fps: float = 1.0) -> list[str]:
         """Process video, extract frames"""
         InputHandler.validate_path(video_path, "Video file")
 
@@ -255,7 +254,7 @@ class VideoHandler(InputHandler):
         return [os.path.join(frames_dir, f) for f in frame_files]
 
 
-def parse_export_feat(export_feat_str: str) -> List[int]:
+def parse_export_feat(export_feat_str: str) -> list[int]:
     """Parse export_feat parameter"""
     if not export_feat_str:
         return []

@@ -14,8 +14,9 @@
 #
 # Adapted from [VGGT-Long](https://github.com/DengKaiCQ/VGGT-Long)
 
+from __future__ import annotations
+
 import time
-from typing import List, Tuple
 
 import numpy as np
 import pypose as pp
@@ -69,7 +70,7 @@ class Sim3LoopOptimizer:
 
     def pypose_sim3_to_numpy(
         self, sim3: pp.Sim3
-    ) -> Tuple[float, np.ndarray, np.ndarray]:
+    ) -> tuple[float, np.ndarray, np.ndarray]:
         """Convert pypose Sim3 to numpy s,R,t"""
         data = sim3.data.cpu().numpy()
         t = data[:3]
@@ -79,7 +80,7 @@ class Sim3LoopOptimizer:
         return s, R_mat, t
 
     def sequential_to_absolute_poses(
-        self, sequential_transforms: List[Tuple[float, np.ndarray, np.ndarray]]
+        self, sequential_transforms: list[tuple[float, np.ndarray, np.ndarray]]
     ) -> torch.Tensor:
         """
         Convert sequential relative transforms to absolute pose sequence
@@ -104,7 +105,7 @@ class Sim3LoopOptimizer:
 
     def absolute_to_sequential_transforms(
         self, absolute_poses: pp.Sim3
-    ) -> List[Tuple[float, np.ndarray, np.ndarray]]:
+    ) -> list[tuple[float, np.ndarray, np.ndarray]]:
         """
         Convert absolute pose sequence back to sequential relative transforms
         T_0, T_1, T_2, ... -> S_01, S_12, S_23, ...
@@ -127,8 +128,8 @@ class Sim3LoopOptimizer:
 
     def build_loop_constraints(
         self,
-        loop_constraints: List[Tuple[int, int, Tuple[float, np.ndarray, np.ndarray]]],
-    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        loop_constraints: list[tuple[int, int, tuple[float, np.ndarray, np.ndarray]]],
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """Build loop closure constraints"""
         if not loop_constraints:
             return (
@@ -216,11 +217,11 @@ class Sim3LoopOptimizer:
 
     def optimize(
         self,
-        sequential_transforms: List[Tuple[float, np.ndarray, np.ndarray]],
-        loop_constraints: List[Tuple[int, int, Tuple[float, np.ndarray, np.ndarray]]],
-        max_iterations: int = None,
-        lambda_init: float = None,
-    ) -> List[Tuple[float, np.ndarray, np.ndarray]]:
+        sequential_transforms: list[tuple[float, np.ndarray, np.ndarray]],
+        loop_constraints: list[tuple[int, int, tuple[float, np.ndarray, np.ndarray]]],
+        max_iterations: int | None = None,
+        lambda_init: float | None = None,
+    ) -> list[tuple[float, np.ndarray, np.ndarray]]:
         """
         Main optimization function
 
@@ -388,8 +389,8 @@ def example_usage():
         poses = pose_tensor.cpu().numpy()
         return poses[:, 0], poses[:, 1], poses[:, 2]
 
-    x0, y0, z0 = extract_xyz(input_abs_poses)
-    x1, y1, z1 = extract_xyz(optimized_abs_poses)
+    x0, y0, _z0 = extract_xyz(input_abs_poses)
+    x1, y1, _z1 = extract_xyz(optimized_abs_poses)
 
     # Visualize trajectory
     import matplotlib

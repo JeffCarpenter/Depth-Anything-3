@@ -22,12 +22,12 @@ Supports multiple datasets and evaluation modes:
 - view_syn: Novel view synthesis (TODO)
 """
 
+from __future__ import annotations
+
 import json
 import os
 import random
 from collections.abc import Iterable
-from typing import Dict as TDict
-from typing import List
 
 import numpy as np
 import torch
@@ -61,10 +61,10 @@ class Evaluator:
     def __init__(
         self,
         work_dir: str = "./eval_workspace",
-        datas: List[str] = ("dtu",),
-        modes: List[str] = ("recon_unposed",),
+        datas: list[str] = ("dtu",),
+        modes: list[str] = ("recon_unposed",),
         ref_view_strategy: str = EVAL_REF_VIEW_STRATEGY,
-        scenes: List[str] = None,
+        scenes: list[str] | None = None,
         debug: bool = False,
         num_fusion_workers: int = 4,
         max_frames: int = 100,
@@ -122,7 +122,7 @@ class Evaluator:
 
     # -------------------- Public APIs -------------------- #
 
-    def all(self, api) -> TDict[str, dict]:
+    def all(self, api) -> dict[str, dict]:
         """
         Run complete evaluation pipeline: inference + evaluation.
 
@@ -135,7 +135,7 @@ class Evaluator:
         self.infer(api)
         return self.eval()
 
-    def _get_scenes(self, dataset) -> List[str]:
+    def _get_scenes(self, dataset) -> list[str]:
         """Get list of scenes to evaluate, optionally filtered."""
         all_scenes = dataset.SCENES
         if self.scenes_filter:
@@ -147,7 +147,7 @@ class Evaluator:
             return scenes
         return all_scenes
 
-    def infer(self, api, model_path: str = None) -> None:
+    def infer(self, api, model_path: str | None = None) -> None:
         """
         Run inference according to requested modes.
 
@@ -211,7 +211,7 @@ class Evaluator:
                 )
                 self._save_gt_meta(export_dir, scene_data)
 
-    def eval(self) -> TDict[str, dict]:
+    def eval(self) -> dict[str, dict]:
         """
         Evaluate for all configured modes and write JSON files.
 
@@ -223,7 +223,7 @@ class Evaluator:
         Returns:
             Summary mapping: {"<data>_<mode>": metrics_dict}
         """
-        summary: TDict[str, dict] = {}
+        summary: dict[str, dict] = {}
 
         # Evaluate by mode (all datasets per mode)
         if "pose" in self.modes:
@@ -253,7 +253,7 @@ class Evaluator:
 
         return summary
 
-    def print_metrics(self, metrics: TDict[str, dict] = None) -> None:
+    def print_metrics(self, metrics: dict[str, dict] | None = None) -> None:
         """
         Print evaluation metrics in a beautiful tabular format.
 
@@ -421,7 +421,7 @@ class Evaluator:
 
     def _compute_pose_with_gt(
         self, result_path: str, gt_meta: Dict
-    ) -> TDict[str, float]:
+    ) -> dict[str, float]:
         """
         Compute pose metrics using saved GT meta (handles frame sampling).
 
@@ -506,7 +506,7 @@ class Evaluator:
         return export_dir
 
     @staticmethod
-    def _to_float_dict(d: TDict[str, float]) -> dict:
+    def _to_float_dict(d: dict[str, float]) -> dict:
         """Convert numpy scalars to plain Python floats for JSON safety."""
         return {k: float(v) for k, v in d.items()}
 
@@ -526,7 +526,7 @@ class Evaluator:
         with open(path, "w", encoding="utf-8") as f:
             json.dump(obj, f, indent=indent, ensure_ascii=False)
 
-    def _load_metrics(self) -> TDict[str, dict]:
+    def _load_metrics(self) -> dict[str, dict]:
         """Load evaluation metrics from JSON files."""
         metrics = {}
         metric_dir = self._metric_dir

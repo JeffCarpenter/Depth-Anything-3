@@ -24,8 +24,9 @@ Evaluation metrics:
 - Camera pose estimation: AUC metrics
 """
 
+from __future__ import annotations
+
 import os
-from typing import Dict as TDict
 
 import cv2
 import imageio
@@ -127,7 +128,7 @@ class ScanNetPP(Dataset):
         depth_path_dir = os.path.join(input_path, "render_depth")
 
         # Read COLMAP model
-        cams, images, points3d = read_model(colmap_path)
+        cams, images, _points3d = read_model(colmap_path)
 
         # Map image names to IDs
         name2id = {image.name: k for k, image in images.items()}
@@ -224,7 +225,7 @@ class ScanNetPP(Dataset):
         """
         image = imageio.imread(img_path).astype(np.uint8)
         ixt_raw = aux.ixt_raw_list[idx]
-        ixt = aux.intrinsics[idx] if hasattr(aux, "intrinsics") else None
+        aux.intrinsics[idx] if hasattr(aux, "intrinsics") else None
         dist = aux.dist_list[idx]
         roi = aux.roi_list[idx]
 
@@ -258,7 +259,7 @@ class ScanNetPP(Dataset):
 
         return image
 
-    def eval3d(self, scene: str, fuse_path: str) -> TDict[str, float]:
+    def eval3d(self, scene: str, fuse_path: str) -> dict[str, float]:
         """
         Evaluate fused point cloud against ScanNet++ ground truth mesh.
 
@@ -450,7 +451,7 @@ class ScanNetPP(Dataset):
         gt_data: Dict,
         full_gt_data: Dict,
         image_indices: list,
-        scene: str = None,
+        scene: str | None = None,
     ) -> tuple:
         """Prepare depths/intrinsics/extrinsics for recon_unposed mode."""
         # Scale alignment with fixed random_state for reproducibility
@@ -513,7 +514,7 @@ class ScanNetPP(Dataset):
         gt_data: Dict,
         full_gt_data: Dict,
         image_indices: list,
-        scene: str = None,
+        scene: str | None = None,
     ) -> tuple:
         """Prepare depths/intrinsics/extrinsics for recon_posed mode."""
         # Scale alignment

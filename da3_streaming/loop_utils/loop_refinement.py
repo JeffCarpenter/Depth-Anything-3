@@ -189,7 +189,7 @@ def residual(Ginv, input_poses, dSloop, ii, jj, jacobian=False):
 
     # prep
     device = Ginv.device
-    assert parse_shape(input_poses, "_ d") == dict(d=7)
+    assert parse_shape(input_poses, "_ d") == {"d": 7}
     pred_inv_poses = SE3_to_Sim3(input_poses).Inv()
 
     # free variables

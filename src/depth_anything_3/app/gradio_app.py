@@ -19,9 +19,11 @@ This is the main application file that orchestrates all components.
 The original functionality has been split into modular components for better maintainability.
 """
 
+from __future__ import annotations
+
 import argparse
 import os
-from typing import Any, Dict, List
+from typing import Any
 
 import gradio as gr
 
@@ -39,7 +41,10 @@ class DepthAnything3App:
     """
 
     def __init__(
-        self, model_dir: str = None, workspace_dir: str = None, gallery_dir: str = None
+        self,
+        model_dir: str | None = None,
+        workspace_dir: str | None = None,
+        gallery_dir: str | None = None,
     ):
         """
         Initialize the application.
@@ -344,8 +349,8 @@ class DepthAnything3App:
         measure_text: gr.Markdown,
         prev_measure_btn: gr.Button,
         next_measure_btn: gr.Button,
-        scenes: List[Dict[str, Any]],
-        scene_components: List[gr.Image],
+        scenes: list[dict[str, Any]],
+        scene_components: list[gr.Image],
         gs_video: gr.Video,
         gs_info: gr.Markdown,
         gs_trj_mode: gr.Dropdown,
@@ -570,8 +575,8 @@ class DepthAnything3App:
 
     def _setup_example_scene_handlers(
         self,
-        scenes: List[Dict[str, Any]],
-        scene_components: List[gr.Image],
+        scenes: list[dict[str, Any]],
+        scene_components: list[gr.Image],
         reconstruction_output: gr.Model3D,
         target_dir_output: gr.Textbox,
         image_gallery: gr.Gallery,

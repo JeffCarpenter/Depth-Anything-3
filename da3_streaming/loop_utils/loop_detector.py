@@ -45,11 +45,15 @@ class VPRModel(nn.Module):
         self,
         # ---- Backbone
         backbone_arch="resnet50",
-        backbone_config={},
+        backbone_config=None,
         # ---- Aggregator
         agg_arch="ConvAP",
-        agg_config={},
+        agg_config=None,
     ):
+        if agg_config is None:
+            agg_config = {}
+        if backbone_config is None:
+            backbone_config = {}
         super().__init__()
 
         # Backbone

@@ -24,7 +24,6 @@ Evaluation metrics:
 """
 
 import os
-from typing import Dict as TDict
 
 import cv2
 import numpy as np
@@ -180,7 +179,7 @@ class SevenScenes(Dataset):
         self._scene_cache[scene] = out
         return out
 
-    def eval3d(self, scene: str, fuse_path: str) -> TDict[str, float]:
+    def eval3d(self, scene: str, fuse_path: str) -> dict[str, float]:
         """
         Evaluate fused point cloud against 7Scenes ground truth mesh.
 
@@ -375,7 +374,7 @@ class SevenScenes(Dataset):
             random_state=42,
         )
 
-        model_h, model_w = pred_data.depth.shape[1], pred_data.depth.shape[2]
+        _model_h, _model_w = pred_data.depth.shape[1], pred_data.depth.shape[2]
 
         depths_out = []
         for i in range(len(pred_data.depth)):

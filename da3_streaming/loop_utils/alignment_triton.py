@@ -419,7 +419,7 @@ def robust_weighted_estimate_sim3_triton(
     prev_error = float("inf")
 
     for iter in range(max_iters):
-        transformed, residuals = apply_transformation_residual_triton(
+        _transformed, residuals = apply_transformation_residual_triton(
             src_torch, tgt_torch, s_torch, R_torch, t_torch
         )
 

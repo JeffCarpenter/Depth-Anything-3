@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional
+from __future__ import annotations
 
 import torch
 from einops import einsum, rearrange, repeat
@@ -68,7 +68,7 @@ class GaussianAdapter(nn.Module):
         raw_gaussians: torch.Tensor,  # "*#batch _"
         image_shape: tuple[int, int],
         eps: float = 1e-8,
-        gt_extrinsics: Optional[torch.Tensor] = None,  # "*#batch 4 4"
+        gt_extrinsics: torch.Tensor | None = None,  # "*#batch 4 4"
         **kwargs,
     ) -> Gaussians:
         device = extrinsics.device

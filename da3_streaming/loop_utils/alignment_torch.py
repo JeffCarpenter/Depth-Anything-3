@@ -245,7 +245,7 @@ def apply_sim3_direct_torch(point_maps, s, R, t, device=None):
         t_torch = t_torch.to(device)
         s_torch = s_torch.to(device)
 
-    b, h, w, c = point_maps_torch.shape
+    b, h, w, _c = point_maps_torch.shape
 
     points_flat = point_maps_torch.reshape(b, -1, 3)  # (b, h*w, 3)
 

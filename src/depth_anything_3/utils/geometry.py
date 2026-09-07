@@ -11,8 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from __future__ import annotations
+
 from types import SimpleNamespace
-from typing import Optional
 
 import numpy as np
 import torch
@@ -339,7 +340,7 @@ def get_fov(intrinsics: torch.Tensor) -> torch.Tensor:  # "batch 3 3" -> "batch 
 def map_pdf_to_opacity(
     pdf: torch.Tensor,  # " *batch"
     global_step: int = 0,
-    opacity_mapping: Optional[dict] = None,
+    opacity_mapping: dict | None = None,
 ) -> torch.Tensor:  # " *batch"
     # https://www.desmos.com/calculator/opvwti3ba9
 

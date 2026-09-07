@@ -22,7 +22,6 @@ the required abstract methods.
 import os
 import time
 from abc import abstractmethod
-from typing import Dict as TDict
 
 import numpy as np
 import torch
@@ -73,7 +72,7 @@ class Dataset:
     def __init__(self):
         pass
 
-    def eval_pose(self, scene: str, result_path: str) -> TDict[str, float]:
+    def eval_pose(self, scene: str, result_path: str) -> dict[str, float]:
         """
         Evaluate camera pose estimation accuracy.
 
@@ -110,7 +109,7 @@ class Dataset:
         raise NotImplementedError
 
     @abstractmethod
-    def eval3d(self, scene: str, fuse_path: str) -> TDict[str, float]:
+    def eval3d(self, scene: str, fuse_path: str) -> dict[str, float]:
         """
         Evaluate 3D reconstruction quality against ground truth.
 

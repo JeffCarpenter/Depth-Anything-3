@@ -15,7 +15,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Any
 
 import numpy as np
 import torch
@@ -47,4 +47,4 @@ class Prediction:
     )
     gaussians: Gaussians | None = None  # 3D gaussians
     aux: dict[str, Any] = None
-    scale_factor: Optional[float] = None  # metric scale
+    scale_factor: float | None = None  # metric scale

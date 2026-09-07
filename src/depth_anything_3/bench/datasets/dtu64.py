@@ -23,7 +23,6 @@ Note: GT depth loading is not implemented as it's not needed for pose evaluation
 
 import glob
 import os
-from typing import Dict as TDict
 
 import numpy as np
 from addict import Dict
@@ -162,7 +161,7 @@ class DTU64(Dataset):
         self._scene_cache[scene] = out
         return out
 
-    def eval3d(self, scene: str, fuse_path: str) -> TDict[str, float]:
+    def eval3d(self, scene: str, fuse_path: str) -> dict[str, float]:
         """
         NOT SUPPORTED for DTU-64.
 

@@ -48,7 +48,7 @@ def select_reference_view(
     Returns:
         b_idx: Tensor of shape (B,) containing the selected view index for each batch
     """
-    B, S, N, C = x.shape
+    B, S, _N, _C = x.shape
 
     # For single view, no reordering needed
     if S <= 1:

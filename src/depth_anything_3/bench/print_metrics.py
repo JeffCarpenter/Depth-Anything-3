@@ -23,8 +23,6 @@ import argparse
 import json
 import os
 import re
-from typing import Dict as TDict
-from typing import List
 
 
 # ANSI color codes for terminal output
@@ -116,7 +114,7 @@ class MetricsPrinter:
         self.use_color = use_color
 
     def print_results(
-        self, metrics: TDict[str, dict], summary_only: bool = True
+        self, metrics: dict[str, dict], summary_only: bool = True
     ) -> None:
         """
         Print evaluation metrics in a beautiful tabular format.
@@ -143,8 +141,8 @@ class MetricsPrinter:
 
     def print_comparison(
         self,
-        metrics_list: List[TDict[str, dict]],
-        labels: List[str],
+        metrics_list: list[dict[str, dict]],
+        labels: list[str],
     ) -> None:
         """
         Print comparison table for multiple evaluation runs.
@@ -207,7 +205,7 @@ class MetricsPrinter:
                         values.append(float("nan"))
 
                 # Find best/worst
-                valid_values = [v for v in values if not (v != v)]  # Filter NaN
+                valid_values = [v for v in values if v == v]  # Filter NaN
                 if valid_values:
                     lower_better = any(
                         lb in metric_name.lower() for lb in self.LOWER_IS_BETTER
@@ -260,7 +258,7 @@ class MetricsPrinter:
         print("=" * width)
         print()
 
-    def _group_by_dataset(self, metrics: TDict[str, dict]) -> TDict[str, dict]:
+    def _group_by_dataset(self, metrics: dict[str, dict]) -> dict[str, dict]:
         """Group metrics by dataset."""
         grouped = {}
         for key, data in metrics.items():
@@ -275,9 +273,7 @@ class MetricsPrinter:
                 grouped[dataset][mode] = data
         return grouped
 
-    def _print_dataset_section(
-        self, dataset: str, modes_data: TDict[str, dict]
-    ) -> None:
+    def _print_dataset_section(self, dataset: str, modes_data: dict[str, dict]) -> None:
         """Print metrics section for a single dataset."""
         print(f"\n{Colors.BOLD_MAGENTA}🔍 {dataset.upper()}{Colors.RESET}")
         print("-" * 100)
@@ -286,7 +282,7 @@ class MetricsPrinter:
         all_metrics = set()
         for mode_data in modes_data.values():
             all_metrics.update(mode_data["mean"].keys())
-        all_metrics = sorted(list(all_metrics))
+        all_metrics = sorted(all_metrics)
 
         if not all_metrics:
             print("  No metrics available")
@@ -349,11 +345,11 @@ class MetricsPrinter:
         # Show scene counts
         scene_info = []
         for mode, mode_data in modes_data.items():
-            scene_count = len([k for k in mode_data.keys() if k != "mean"])
+            scene_count = len([k for k in mode_data if k != "mean"])
             scene_info.append(f"{mode}: {scene_count} scenes")
         print(f"\n{Colors.CYAN}📈 {' | '.join(scene_info)}{Colors.RESET}")
 
-    def _print_summary(self, metrics: TDict[str, dict]) -> None:
+    def _print_summary(self, metrics: dict[str, dict]) -> None:
         """
         Print summary table with key metrics across all datasets.
 
@@ -365,7 +361,6 @@ class MetricsPrinter:
         print(f"{Colors.BOLD_CYAN}{'=' * 120}{Colors.RESET}")
 
         # Dataset display order and names
-        DATASET_ORDER = ["hiroom", "eth3d", "dtu", "7scenes", "scannetpp", "dtu64"]
         DATASET_DISPLAY = {
             "hiroom": "HiRoom",
             "eth3d": "ETH3D",
@@ -553,7 +548,7 @@ class MetricsPrinter:
         )
 
 
-def load_metrics_from_dir(metric_dir: str) -> TDict[str, dict]:
+def load_metrics_from_dir(metric_dir: str) -> dict[str, dict]:
     """
     Load all metrics JSON files from a directory.
 

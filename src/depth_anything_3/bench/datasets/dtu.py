@@ -23,8 +23,6 @@ Note: DepthAnything3 was never trained on any images from DTU.
 
 import glob
 import os
-from typing import Dict as TDict
-from typing import List
 
 import numpy as np
 import open3d as o3d
@@ -149,7 +147,7 @@ class DTU(Dataset):
 
     def eval3d(
         self, scene: str, fuse_path: str, use_gpu: bool = False
-    ) -> TDict[str, float]:
+    ) -> dict[str, float]:
         """
         Evaluate fused point cloud against DTU GT with ObsMask/Plane.
 
@@ -174,7 +172,7 @@ class DTU(Dataset):
         )
         return {"comp": result[0], "acc": result[1], "overall": result[2]}
 
-    def load_masks(self, mask_files: List[str]) -> np.ndarray:
+    def load_masks(self, mask_files: list[str]) -> np.ndarray:
         """
         Load DTU depth validity masks.
 
@@ -222,7 +220,7 @@ class DTU(Dataset):
         proj_t = torch.from_numpy(proj_mat).to(device=device, dtype=dtype)
         height, width = depths_t.shape[-2:]
 
-        points: List[np.ndarray] = []
+        points: list[np.ndarray] = []
         for idx in range(len(gt_data.image_files)):
             if mode == "recon_unposed":
                 # Simple unfiltered back-projection per frame
@@ -520,7 +518,7 @@ class DTU(Dataset):
 
         all_min_dists = []
         n_query_batches = (len(query) + batch_size - 1) // batch_size
-        n_target_batches = (len(target) + target_batch_size - 1) // target_batch_size
+        (len(target) + target_batch_size - 1) // target_batch_size
 
         # Pre-load target batches to GPU to avoid repeated transfers
         # Memory: ~50000 pts * 3 coords * 4 bytes * n_batches
@@ -672,7 +670,7 @@ class DTU(Dataset):
         batch_size = 20
         tot_frame = depths_t.shape[0]
         while True:
-            ref_pc, pcs, dist = self._filter_depth(
+            _ref_pc, pcs, dist = self._filter_depth(
                 ref_depth=depths_t[idx : idx + 1],
                 src_depths=depths_t[j : min(j + batch_size, tot_frame)],
                 ref_proj=proj_t[idx : idx + 1],

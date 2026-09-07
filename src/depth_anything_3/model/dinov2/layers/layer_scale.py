@@ -6,7 +6,7 @@
 
 # Modified from: https://github.com/huggingface/pytorch-image-models/blob/main/timm/models/vision_transformer.py#L103-L110
 
-from typing import Union
+from __future__ import annotations
 
 import torch
 from torch import Tensor, nn
@@ -16,7 +16,7 @@ class LayerScale(nn.Module):
     def __init__(
         self,
         dim: int,
-        init_values: Union[float, Tensor] = 1e-5,
+        init_values: float | Tensor = 1e-5,
         inplace: bool = False,
     ) -> None:
         super().__init__()

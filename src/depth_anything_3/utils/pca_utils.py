@@ -94,7 +94,7 @@ def pca_to_rgb_4d_bf16_percentile(
         # Main computation: PCA + projection, try to use bf16
         # (auto-fallback if operator not supported)
         device.startswith("cuda") and enable_autocast_bf16
-        U, S, V = torch.pca_lowrank(Xc, q=q, center=False)  # V: (D, q)
+        _U, _S, V = torch.pca_lowrank(Xc, q=q, center=False)  # V: (D, q)
         V3 = V[:, :k]  # (3072, 3)
         PCs = Xc @ V3  # (N, 3)
 
@@ -185,7 +185,7 @@ class PCARGBVisualizer:
         mean = X.mean(0, keepdim=True)
         Xc = X - mean
 
-        U, S, V = torch.pca_lowrank(Xc, q=max(self.q, 8), center=False)
+        _U, _S, V = torch.pca_lowrank(Xc, q=max(self.q, 8), center=False)
         V3 = V[:, :3]  # (D,3)
 
         PCs = Xc @ V3
@@ -218,10 +218,10 @@ class PCARGBVisualizer:
         if self.basis_mode == "fixed":
             V3_used = self.V3_ref
         else:
-            U, S, V = torch.pca_lowrank(Xc, q=max(self.q, 6), center=False)
+            _U, _S, V = torch.pca_lowrank(Xc, q=max(self.q, 6), center=False)
             V3 = V[:, :3]  # (D,3)
             M = V3.T @ self.V3_ref
-            Uo, So, Vh = torch.linalg.svd(M)
+            Uo, _So, Vh = torch.linalg.svd(M)
             R = Uo @ Vh
             V3_used = V3 @ R
             # Optional polarity fix via anchor
@@ -279,7 +279,7 @@ class PCARGBVisualizer:
         if isinstance(frames, np.ndarray):
             if frames.ndim != 4:
                 raise ValueError("transform_video expects (T,H,W,D).")
-            T, H, W, D = frames.shape
+            T, _H, _W, _D = frames.shape
             for t in range(T):
                 outs.append(self.transform_frame(frames[t]))
         else:

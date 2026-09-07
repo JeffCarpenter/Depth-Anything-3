@@ -34,7 +34,7 @@ def project_to_so3_strict(M: torch.Tensor) -> torch.Tensor:
         )
 
     # 1. Compute SVD
-    U, S, Vh = torch.linalg.svd(M)
+    U, _S, Vh = torch.linalg.svd(M)
     V = Vh.mH
 
     # 2. Handle reflection case (det = -1)

@@ -18,11 +18,12 @@ File handling module for Depth Anything 3 Gradio app.
 This module handles file uploads, video processing, and file operations.
 """
 
+from __future__ import annotations
+
 import os
 import shutil
 import time
 from datetime import datetime
-from typing import List, Optional, Tuple
 
 import cv2
 from PIL import Image
@@ -62,7 +63,7 @@ class FileHandler:
     def __init__(self):
         """Initialize the file handler."""
 
-    def is_valid_session_dir(self, target_dir: Optional[str]) -> bool:
+    def is_valid_session_dir(self, target_dir: str | None) -> bool:
         """Check that target_dir is a session/example directory this handler itself
         creates under the configured workspace, rather than an arbitrary path."""
         if not target_dir or target_dir == "None":
@@ -81,9 +82,7 @@ class FileHandler:
                 return False
 
             rel = os.path.relpath(real_target, input_images_dir)
-            if os.sep in rel or not (
-                rel.startswith("session_") or rel.startswith("example_")
-            ):
+            if os.sep in rel or not (rel.startswith(("session_", "example_"))):
                 return False
 
             return os.path.isdir(real_target)
@@ -92,10 +91,10 @@ class FileHandler:
 
     def handle_uploads(
         self,
-        input_video: Optional[str],
-        input_images: Optional[List],
+        input_video: str | None,
+        input_images: list | None,
         s_time_interval: float = 10.0,
-    ) -> Tuple[str, List[str]]:
+    ) -> tuple[str, list[str]]:
         """
         Create a new 'target_dir' + 'images' subfolder, and place user-uploaded
         images or extracted frames from video into it.
@@ -152,7 +151,7 @@ class FileHandler:
         )
         return target_dir, image_paths
 
-    def _process_images(self, input_images: List, target_dir_images: str) -> List[str]:
+    def _process_images(self, input_images: list, target_dir_images: str) -> list[str]:
         """
         Process uploaded images.
 
@@ -216,7 +215,7 @@ class FileHandler:
 
     def _process_video(
         self, input_video: str, target_dir_images: str, s_time_interval: float
-    ) -> List[str]:
+    ) -> list[str]:
         """
         Process video file and extract frames.
 
@@ -260,10 +259,10 @@ class FileHandler:
 
     def update_gallery_on_upload(
         self,
-        input_video: Optional[str],
-        input_images: Optional[List],
+        input_video: str | None,
+        input_images: list | None,
         s_time_interval: float = 10.0,
-    ) -> Tuple[Optional[str], Optional[str], Optional[List], Optional[str]]:
+    ) -> tuple[str | None, str | None, list | None, str | None]:
         """
         Handle file uploads and update gallery.
 
@@ -290,7 +289,7 @@ class FileHandler:
 
     def load_example_scene(
         self, scene_name: str, examples_dir: str = "examples"
-    ) -> Tuple[Optional[str], Optional[str], Optional[List], str]:
+    ) -> tuple[str | None, str | None, list | None, str]:
         """
         Load a scene from examples directory.
 

@@ -12,8 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 import os
-from typing import Literal, Optional
+from typing import Literal
 
 import moviepy as mpy
 import torch
@@ -34,9 +36,8 @@ VIDEO_QUALITY_MAP = {
 def export_to_gs_ply(
     prediction: Prediction,
     export_dir: str,
-    gs_views_interval: Optional[
-        int
-    ] = 1,  # export GS every N views, useful for extremely dense inputs
+    gs_views_interval: int
+    | None = 1,  # export GS every N views, useful for extremely dense inputs
 ):
     gs_world = prediction.gaussians
     pred_depth = (
@@ -64,12 +65,11 @@ def export_to_gs_ply(
 def export_to_gs_video(
     prediction: Prediction,
     export_dir: str,
-    extrinsics: Optional[torch.Tensor] = None,  # render views' world2cam, "b v 4 4"
-    intrinsics: Optional[
-        torch.Tensor
-    ] = None,  # render views' unnormed intrinsics, "b v 3 3"
-    out_image_hw: Optional[tuple[int, int]] = None,  # render views' resolution, (h, w)
-    chunk_size: Optional[int] = 4,
+    extrinsics: torch.Tensor | None = None,  # render views' world2cam, "b v 4 4"
+    intrinsics: torch.Tensor
+    | None = None,  # render views' unnormed intrinsics, "b v 3 3"
+    out_image_hw: tuple[int, int] | None = None,  # render views' resolution, (h, w)
+    chunk_size: int | None = 4,
     trj_mode: Literal[
         "original",
         "smooth",
@@ -81,9 +81,9 @@ def export_to_gs_video(
         "wobble_inter",
     ] = "extend",
     color_mode: Literal["RGB+D", "RGB+ED"] = "RGB+ED",
-    vis_depth: Optional[Literal["hcat", "vcat"]] = "hcat",
-    enable_tqdm: Optional[bool] = True,
-    output_name: Optional[str] = None,
+    vis_depth: Literal["hcat", "vcat"] | None = "hcat",
+    enable_tqdm: bool | None = True,
+    output_name: str | None = None,
     video_quality: Literal["low", "medium", "high"] = "high",
 ) -> None:
     gs_world = prediction.gaussians
