@@ -7,7 +7,6 @@ arch=('any')
 url="https://github.com/ByteDance-Seed/Depth-Anything-3"
 license=('Apache-2.0')
 depends=(
-  'pre-commit'
   'python'
   'python-einops'
   'python-fastapi'

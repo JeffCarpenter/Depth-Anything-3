@@ -10,7 +10,6 @@ pkgbase = python-depth-anything-3
 	makedepends = python-hatch-vcs
 	makedepends = python-installer
 	makedepends = python-wheel
-	depends = pre-commit
 	depends = python
 	depends = python-einops
 	depends = python-fastapi
