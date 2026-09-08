@@ -33,6 +33,7 @@ depends=(
 optdepends=(
   'python-moviepy: video export in depth_anything_3.utils.export.gs'
   'python-plyfile: Gaussian splat export in depth_anything_3.utils.export'
+  'python-pycolmap'
   'python-open3d: mesh evaluation in depth_anything_3.bench'
 )
 makedepends=(
