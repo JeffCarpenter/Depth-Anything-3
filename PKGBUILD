@@ -1,7 +1,7 @@
 # Maintainer: Jeff C <pub@jeffc.ca>
 pkgname=python-depth-anything-3-git
 _name=depth_anything_3
-pkgver=0.1.1.r41.g9f0b04b
+pkgver=0.1.1.r43.g41ad16c
 pkgrel=1
 pkgdesc="Foundation models for monocular and multi-view depth and geometry estimation"
 arch=('any')
@@ -41,7 +41,9 @@ optdepends=(
   'python-gsplat: Gaussian splat rendering in depth_anything_3.model.utils.gs_renderer'
   'python-moviepy: video export in depth_anything_3.utils.export.gs'
   'python-plyfile: Gaussian splat export in depth_anything_3.utils.export'
-  'python-pycolmap'
+  'python-pycolmap: COLMAP sparse reconstruction export in depth_anything_3.utils.export.colmap'
+  'python-e3nn: rotating camera-space SH coefficients in depth_anything_3.utils.sh_helpers'
+  'python-evo: Umeyama Sim(3) pose alignment in depth_anything_3.utils.pose_align'
   'python-open3d: mesh evaluation in depth_anything_3.bench'
 )
 makedepends=(
@@ -55,9 +57,11 @@ makedepends=(
 # python, python-numpy, python-pytorch, and python-typer are deliberately
 # unversioned: the sync repos ship Python 3.14 and NumPy 2, so upstream's
 # exact pins (python<=3.13, numpy<2, and similar) can never resolve.
-# Dependency review found no Arch or AUR providers for the required PyPI
-# projects evo, e3nn, and lazy_imports (pycolmap is an optdepend), so the
-# runtime dependency set remains incomplete.
+# PyPI projects without an Arch or AUR provider (evo, e3nn, pycolmap) are
+# optional imports deferred to the call site, so every feature raises a
+# clear ImportError naming its dependency; they are carried as optdepends
+# for discoverability. The lazy_imports dependency was eliminated entirely
+# by that import deferral.
 provides=("python-depth-anything-3=${pkgver}")
 conflicts=('python-depth-anything-3')
 source=("${pkgname}::git+https://github.com/JeffCarpenter/Depth-Anything-3.git")
@@ -82,16 +86,24 @@ prepare() {
   # statically pinned to "0.0.0"; declare it dynamic so the wheel metadata
   # carries the real version. No-op once upstream declares it dynamic itself.
   sed -i 's/^version = ".*"/dynamic = ["version"]/' pyproject.toml
+  # Fail loudly rather than silently build a 0.0.0 wheel if upstream
+  # restructures pyproject.toml so the sed above no longer applies.
+  python -c 'import sys, tomllib
+proj = tomllib.load(open("pyproject.toml", "rb"))["project"]
+if "version" in proj or "version" not in proj.get("dynamic", []):
+    sys.exit("prepare(): project.version is not dynamic; the sed failed")'
 }
 
 build() {
   cd "${pkgname}"
   # hatch-vcs (setuptools-scm) cannot derive a release base from a tagless
   # clone, so pin the wheel metadata to the pkgver() result restated in PEP
-  # 440 form: 0.1.1.r41.g9f0b04b -> 0.1.1.dev41+g9f0b04b (wheel metadata must
-  # be PEP 440 while $pkgver follows the Arch VCS format).
+  # 440 form: 0.1.1.r41.g9f0b04b -> 0.1.1+r41.g9f0b04b (wheel metadata must
+  # be PEP 440 while $pkgver follows the Arch VCS format; the "+local"
+  # spelling sorts newer than the 0.1.1 release and older than 0.1.2,
+  # matching the Arch version ordering, unlike the .devN form).
   local scmver
-  scmver=$(printf '%s' "${pkgver}" | sed -E 's/\.r([0-9]+)\.g/.dev\1+g/')
+  scmver=$(printf '%s' "${pkgver}" | sed -E 's/\.r([0-9]+)\.g/+r\1.g/')
   export SETUPTOOLS_SCM_PRETEND_VERSION="${scmver}"
   python -m build --wheel --no-isolation
 }
@@ -99,8 +111,9 @@ build() {
 check() {
   cd "${pkgname}"
   local test_root="$srcdir/test-root"
-  local site_packages
+  local site_packages scmver
   site_packages=$(python -c 'import site; print(site.getsitepackages()[0])')
+  scmver=$(printf '%s' "${pkgver}" | sed -E 's/\.r([0-9]+)\.g/+r\1.g/')
   rm -rf "$test_root"
   python -m installer --destdir="$test_root" dist/*.whl
 
@@ -109,6 +122,9 @@ check() {
   test -x "$test_root/usr/bin/da3"
   grep -q 'depth_anything_3.cli:app' \
     "$test_root$site_packages/${_name}"-*.dist-info/entry_points.txt
+  # The dist-info metadata must carry the pkgver()-derived PEP 440 version;
+  # a 0.0.0 dist-info would mean the version source silently failed.
+  test -d "$test_root$site_packages/${_name}-${scmver}.dist-info"
 }
 
 package() {
