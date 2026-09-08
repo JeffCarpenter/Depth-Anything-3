@@ -17,7 +17,6 @@ depends=(
   'python-numpy'
   'python-omegaconf'
   'python-opencv'
-  'python-open3d'
   'python-pillow'
   'python-pillow-heif'
   'python-plyfile'
@@ -29,6 +28,12 @@ depends=(
   'python-torchvision'
   'python-xformers'
   'uvicorn'
+)
+optdepends=(
+  'python-moviepy'
+  'python-plyfile'
+  'python-pycolmap'
+  'python-open3d'
 )
 makedepends=(
   'python-build'

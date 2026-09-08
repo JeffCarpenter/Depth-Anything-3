@@ -17,14 +17,21 @@ from __future__ import annotations
 import os
 from typing import Literal
 
-import moviepy as mpy
 import torch
+from lazy_imports import try_import
 
 from depth_anything_3.model.utils.gs_renderer import run_renderer_in_chunk_w_trj_mode
-from depth_anything_3.specs import Prediction
-from depth_anything_3.utils.gsply_helpers import save_gaussian_ply
+from depth_anything_3.specs import Gaussians, Prediction
 from depth_anything_3.utils.layout_helpers import hcat, vcat
 from depth_anything_3.utils.visualize import vis_depth_map_tensor
+
+with try_import() as moviepy_import:
+    import moviepy as mpy
+
+
+with try_import() as save_gaussian_ply_import:
+    from depth_anything_3.utils.gsply_helpers import save_gaussian_ply
+
 
 VIDEO_QUALITY_MAP = {
     "low": {"crf": "28", "preset": "veryfast"},
@@ -39,7 +46,11 @@ def export_to_gs_ply(
     gs_views_interval: int
     | None = 1,  # export GS every N views, useful for extremely dense inputs
 ):
+    save_gaussian_ply_import.check()
+
     gs_world = prediction.gaussians
+    assert isinstance(gs_world, Gaussians)
+
     pred_depth = (
         torch.from_numpy(prediction.depth).unsqueeze(-1).to(gs_world.means)
     )  # v h w 1
@@ -86,7 +97,12 @@ def export_to_gs_video(
     output_name: str | None = None,
     video_quality: Literal["low", "medium", "high"] = "high",
 ) -> None:
+
+    moviepy_import.check()
+
     gs_world = prediction.gaussians
+    assert isinstance(gs_world, Gaussians)
+
     # if target poses are not provided, render the (smooth/interpolate) input poses
     if extrinsics is not None:
         tgt_extrs = extrinsics

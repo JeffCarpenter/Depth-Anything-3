@@ -19,18 +19,25 @@ This module handles all model-related operations including inference,
 data processing, and result preparation.
 """
 
+from __future__ import annotations
+
 import glob
 import os
-from typing import Any
+from typing import Any, Literal, cast
 
 import numpy as np
 import torch
+from lazy_imports import try_import
+from PIL import Image
 
 from depth_anything_3.api import DepthAnything3
 from depth_anything_3.utils.download import download_model
-from depth_anything_3.utils.export.glb import export_to_glb
-from depth_anything_3.utils.export.gs import export_to_gs_video
 from depth_anything_3.utils.memory import cleanup_cuda_memory
+
+with try_import() as export_to_glb_import:
+    from depth_anything_3.utils.export.glb import export_to_glb
+with try_import() as export_to_gs_video_import:
+    from depth_anything_3.utils.export.gs import export_to_gs_video
 
 
 class ModelInference:
@@ -40,9 +47,9 @@ class ModelInference:
 
     def __init__(self):
         """Initialize the model inference handler."""
-        self.model = None
+        self.model: DepthAnything3 | None = None
 
-    def initialize_model(self, device: str = "cuda") -> None:
+    def initialize_model(self, device: str | torch.device = "cuda") -> None:
         """
         Initialize the DepthAnything3 model.
 
@@ -52,8 +59,7 @@ class ModelInference:
         if self.model is None:
             # Get model directory from environment variable or use default
             model_dir = os.environ.get("DA3_MODEL_DIR", download_model("DA3-SMALL"))
-            self.model = DepthAnything3.from_pretrained(model_dir)
-            self.model = self.model.to(device)
+            self.model = DepthAnything3.from_pretrained(model_dir, device=device)
         else:
             self.model = self.model.to(device)
 
@@ -70,8 +76,8 @@ class ModelInference:
         num_max_points: int = 1_000_000,
         infer_gs: bool = False,
         ref_view_strategy: str = "saddle_balanced",
-        gs_trj_mode: str = "extend",
-        gs_video_quality: str = "high",
+        gs_trj_mode: Literal["extend", "smooth"] = "extend",
+        gs_video_quality: Literal["low", "medium", "high"] = "high",
     ) -> tuple[Any, dict[int, dict[str, Any]]]:
         """
         Run DepthAnything3 model inference on images.
@@ -93,6 +99,9 @@ class ModelInference:
             Tuple of (prediction, processed_data)
         """
         print(f"Processing images from {target_dir}")
+        export_to_glb_import.check()
+        if infer_gs:
+            export_to_gs_video_import.check()
 
         # Device check
         device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -100,6 +109,7 @@ class ModelInference:
 
         # Initialize model if needed
         self.initialize_model(device)
+        assert self.model is not None
 
         # Get image paths
         print("Loading images...")
@@ -118,7 +128,7 @@ class ModelInference:
         print(f"All image paths: {all_image_paths}")
 
         # Use sorted image order (reference view will be selected automatically)
-        image_paths = all_image_paths
+        image_paths = cast(list[np.ndarray | Image.Image | str], all_image_paths)
         print(f"Reference view selection strategy: {ref_view_strategy}")
 
         if len(image_paths) == 0:
@@ -154,7 +164,9 @@ class ModelInference:
 
         # export to gs video if needed
         if infer_gs:
-            mode_mapping = {"extend": "extend", "smooth": "interpolate_smooth"}
+            mode_mapping: dict[
+                Literal["extend", "smooth"], Literal["extend", "interpolate_smooth"]
+            ] = {"extend": "extend", "smooth": "interpolate_smooth"}
             print(f"GS mode: {gs_trj_mode}; Backend mode: {mode_mapping[gs_trj_mode]}")
             export_to_gs_video(
                 prediction,
@@ -213,7 +225,8 @@ class ModelInference:
             np.savez_compressed(output_file, **save_dict)
             print(f"Saved predictions cache to: {output_file}")
 
-        except Exception as e:
+        # Cache failures must not discard a successful inference result.
+        except Exception as e:  # noqa: BLE001
             print(f"Warning: Failed to save predictions cache: {e}")
 
     def _process_results(
