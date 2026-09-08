@@ -37,3 +37,5 @@ temp*.png
 
 # Local build logs
 log/
+*.gz
+*.zst
