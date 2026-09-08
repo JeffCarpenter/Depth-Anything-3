@@ -46,5 +46,5 @@ class Prediction:
         None  # N, H, W, 3 - processed images for visualization
     )
     gaussians: Gaussians | None = None  # 3D gaussians
-    aux: dict[str, Any] = None
+    aux: dict[str, Any] | None = None
     scale_factor: float | None = None  # metric scale

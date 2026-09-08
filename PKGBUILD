@@ -16,10 +16,8 @@ depends=(
   'python-numpy'
   'python-omegaconf'
   'python-opencv'
-  'python-open3d'
   'python-pillow'
   'python-pillow-heif'
-  'python-plyfile'
   'python-pytorch'
   'python-requests'
   'python-safetensors'
@@ -34,6 +32,8 @@ depends=(
 # optional rather than a hard dependency.
 optdepends=(
   'python-moviepy: video export in depth_anything_3.utils.export.gs'
+  'python-plyfile: Gaussian splat export in depth_anything_3.utils.export'
+  'python-open3d: mesh evaluation in depth_anything_3.bench'
 )
 makedepends=(
   'python-build'
