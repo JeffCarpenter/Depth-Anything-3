@@ -13,7 +13,6 @@ depends=(
   'python-fastapi'
   'python-huggingface-hub'
   'python-imageio'
-  'python-moviepy'
   'python-numpy'
   'python-omegaconf'
   'python-opencv'
@@ -21,14 +20,20 @@ depends=(
   'python-pillow'
   'python-pillow-heif'
   'python-plyfile'
-  'python-pytorch>=2'
+  'python-pytorch'
   'python-requests'
   'python-safetensors'
   'python-trimesh'
-  'python-typer>=0.9.0'
+  'python-typer'
   'python-torchvision'
   'python-xformers'
   'uvicorn'
+)
+# Upstream pins moviepy==1.0.3, but the AUR only carries MoviePy 2 with a
+# different API; only depth_anything_3.utils.export.gs imports it, so it is
+# optional rather than a hard dependency.
+optdepends=(
+  'python-moviepy: video export in depth_anything_3.utils.export.gs'
 )
 makedepends=(
   'python-build'
@@ -37,12 +42,12 @@ makedepends=(
   'python-installer'
   'python-wheel'
 )
-# python, python-numpy, and python-moviepy are deliberately unversioned: the
-# sync repos ship Python 3.14 and NumPy 2, and the AUR only carries MoviePy 2,
-# so upstream's exact pins (python<=3.13, numpy<2, moviepy=1.0.3) can never
-# resolve. Dependency review also found no Arch or AUR providers for the
-# required PyPI projects evo, e3nn, pycolmap, and lazy_imports, so the runtime
-# dependency set remains incomplete.
+# python, python-numpy, python-pytorch, and python-typer are deliberately
+# unversioned: the sync repos ship Python 3.14 and NumPy 2, so upstream's
+# exact pins (python<=3.13, numpy<2, and similar) can never resolve.
+# Dependency review also found no Arch or AUR providers for the required PyPI
+# projects evo, e3nn, pycolmap, and lazy_imports, so the runtime dependency
+# set remains incomplete.
 source=("https://files.pythonhosted.org/packages/6f/41/fae3fc2ceeade5b3e1e711dd5eeed208b2ae0af9b27ad169b0de38558179/${_name}-${pkgver}.tar.gz")
 sha256sums=('3aa1daae7d1b7bffa8cffb8c9d9d34839ca0e576b896cb7d7090c4b5e57af72b')
 
