@@ -27,17 +27,13 @@ from typing import Any, Literal, cast
 
 import numpy as np
 import torch
-from lazy_imports import try_import
 from PIL import Image
 
 from depth_anything_3.api import DepthAnything3
 from depth_anything_3.utils.download import download_model
+from depth_anything_3.utils.export.glb import export_to_glb
+from depth_anything_3.utils.export.gs import export_to_gs_video
 from depth_anything_3.utils.memory import cleanup_cuda_memory
-
-with try_import() as export_to_glb_import:
-    from depth_anything_3.utils.export.glb import export_to_glb
-with try_import() as export_to_gs_video_import:
-    from depth_anything_3.utils.export.gs import export_to_gs_video
 
 
 class ModelInference:
@@ -99,10 +95,6 @@ class ModelInference:
             Tuple of (prediction, processed_data)
         """
         print(f"Processing images from {target_dir}")
-        export_to_glb_import.check()
-        if infer_gs:
-            export_to_gs_video_import.check()
-
         # Device check
         device = "cuda" if torch.cuda.is_available() else "cpu"
         device = torch.device(device)

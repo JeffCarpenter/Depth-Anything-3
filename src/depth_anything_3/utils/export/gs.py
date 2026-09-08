@@ -18,19 +18,11 @@ import os
 from typing import Literal
 
 import torch
-from lazy_imports import try_import
 
 from depth_anything_3.model.utils.gs_renderer import run_renderer_in_chunk_w_trj_mode
 from depth_anything_3.specs import Gaussians, Prediction
 from depth_anything_3.utils.layout_helpers import hcat, vcat
 from depth_anything_3.utils.visualize import vis_depth_map_tensor
-
-with try_import() as moviepy_import:
-    import moviepy as mpy
-
-
-with try_import() as save_gaussian_ply_import:
-    from depth_anything_3.utils.gsply_helpers import save_gaussian_ply
 
 
 VIDEO_QUALITY_MAP = {
@@ -46,7 +38,13 @@ def export_to_gs_ply(
     gs_views_interval: int
     | None = 1,  # export GS every N views, useful for extremely dense inputs
 ):
-    save_gaussian_ply_import.check()
+    try:
+        from depth_anything_3.utils.gsply_helpers import save_gaussian_ply
+    except ImportError as e:
+        raise ImportError(
+            "Missing optional dependency 'plyfile': required for GS PLY export "
+            "(depth_anything_3.utils.export.gs.export_to_gs_ply)."
+        ) from e
 
     gs_world = prediction.gaussians
     assert isinstance(gs_world, Gaussians)
@@ -98,7 +96,13 @@ def export_to_gs_video(
     video_quality: Literal["low", "medium", "high"] = "high",
 ) -> None:
 
-    moviepy_import.check()
+    try:
+        import moviepy as mpy
+    except ImportError as e:
+        raise ImportError(
+            "Missing optional dependency 'moviepy': required for GS video export "
+            "(depth_anything_3.utils.export.gs.export_to_gs_video)."
+        ) from e
 
     gs_world = prediction.gaussians
     assert isinstance(gs_world, Gaussians)

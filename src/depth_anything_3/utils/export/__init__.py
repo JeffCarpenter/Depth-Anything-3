@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from lazy_imports import try_import
-
 from depth_anything_3.specs import Prediction
 
 from .depth_vis import export_to_depth_vis
@@ -61,19 +59,16 @@ def export(
     elif export_format == "depth_vis":
         export_to_depth_vis(prediction, export_dir)
     elif export_format == "gs_ply":
-        with try_import() as gs_import:
-            from depth_anything_3.utils.export.gs import export_to_gs_ply
-        gs_import.check()
+        from depth_anything_3.utils.export.gs import export_to_gs_ply
+
         export_to_gs_ply(prediction, export_dir, **kwargs.get(export_format, {}))
     elif export_format == "gs_video":
-        with try_import() as gs_import:
-            from depth_anything_3.utils.export.gs import export_to_gs_video
-        gs_import.check()
+        from depth_anything_3.utils.export.gs import export_to_gs_video
+
         export_to_gs_video(prediction, export_dir, **kwargs.get(export_format, {}))
     elif export_format == "colmap":
-        with try_import() as colmap_import:
-            from .colmap import export_to_colmap
-        colmap_import.check()
+        from .colmap import export_to_colmap
+
         export_to_colmap(prediction, export_dir, **kwargs.get(export_format, {}))
     else:
         raise ValueError(f"Unsupported export format: {export_format}")

@@ -17,15 +17,6 @@ from math import isqrt
 import torch
 from einops import einsum
 
-try:
-    from e3nn.o3 import matrix_to_angles, wigner_D
-except ImportError:
-    from depth_anything_3.utils.logger import logger
-
-    logger.warn(
-        "Dependency 'e3nn' not found. Required for rotating the camera space SH coeff"
-    )
-
 
 def project_to_so3_strict(M: torch.Tensor) -> torch.Tensor:
     if M.shape[-2:] != (3, 3):
@@ -67,6 +58,14 @@ def rotate_sh(
     dtype = sh_coefficients.dtype
 
     *_, n = sh_coefficients.shape
+
+    try:
+        from e3nn.o3 import matrix_to_angles, wigner_D
+    except ImportError as e:
+        raise ImportError(
+            "Missing optional dependency 'e3nn': required for rotating camera-space "
+            "SH coefficients (depth_anything_3.utils.sh_helpers.rotate_sh)."
+        ) from e
 
     with torch.autocast(device_type=rotations.device.type, enabled=False):
         rotations_float32 = rotations.to(torch.float32)
