@@ -8,13 +8,13 @@ url="https://github.com/ByteDance-Seed/Depth-Anything-3"
 license=('Apache-2.0')
 depends=(
   'pre-commit'
-  'python<=3.13'
+  'python'
   'python-einops'
   'python-fastapi'
   'python-huggingface-hub'
   'python-imageio'
-  'python-moviepy=1.0.3'
-  'python-numpy<2'
+  'python-moviepy'
+  'python-numpy'
   'python-omegaconf'
   'python-opencv'
   'python-open3d'
@@ -37,10 +37,12 @@ makedepends=(
   'python-installer'
   'python-wheel'
 )
-# Dependency review also found no Arch or AUR providers for the required PyPI
-# projects evo, e3nn, pycolmap, and lazy_imports. This package cannot express a
-# complete, satisfiable runtime dependency set. Python 3.14, NumPy 2, and
-# MoviePy 2 are intentionally rejected to preserve upstream's exact metadata.
+# python, python-numpy, and python-moviepy are deliberately unversioned: the
+# sync repos ship Python 3.14 and NumPy 2, and the AUR only carries MoviePy 2,
+# so upstream's exact pins (python<=3.13, numpy<2, moviepy=1.0.3) can never
+# resolve. Dependency review also found no Arch or AUR providers for the
+# required PyPI projects evo, e3nn, pycolmap, and lazy_imports, so the runtime
+# dependency set remains incomplete.
 source=("https://files.pythonhosted.org/packages/6f/41/fae3fc2ceeade5b3e1e711dd5eeed208b2ae0af9b27ad169b0de38558179/${_name}-${pkgver}.tar.gz")
 sha256sums=('3aa1daae7d1b7bffa8cffb8c9d9d34839ca0e576b896cb7d7090c4b5e57af72b')
 
