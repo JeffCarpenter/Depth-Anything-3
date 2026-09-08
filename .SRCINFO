@@ -1,0 +1,38 @@
+pkgbase = python-depth-anything-3
+	pkgdesc = Foundation models for monocular and multi-view depth and geometry estimation
+	pkgver = 0.1.1
+	pkgrel = 1
+	url = https://github.com/ByteDance-Seed/Depth-Anything-3
+	arch = any
+	license = Apache-2.0
+	makedepends = python-build
+	makedepends = python-hatchling
+	makedepends = python-hatch-vcs
+	makedepends = python-installer
+	makedepends = python-wheel
+	depends = pre-commit
+	depends = python<=3.13
+	depends = python-einops
+	depends = python-fastapi
+	depends = python-huggingface-hub
+	depends = python-imageio
+	depends = python-moviepy=1.0.3
+	depends = python-numpy<2
+	depends = python-omegaconf
+	depends = python-opencv
+	depends = python-open3d
+	depends = python-pillow
+	depends = python-pillow-heif
+	depends = python-plyfile
+	depends = python-pytorch>=2
+	depends = python-requests
+	depends = python-safetensors
+	depends = python-trimesh
+	depends = python-typer>=0.9.0
+	depends = python-torchvision
+	depends = python-xformers
+	depends = uvicorn
+	source = https://files.pythonhosted.org/packages/6f/41/fae3fc2ceeade5b3e1e711dd5eeed208b2ae0af9b27ad169b0de38558179/depth_anything_3-0.1.1.tar.gz
+	sha256sums = 3aa1daae7d1b7bffa8cffb8c9d9d34839ca0e576b896cb7d7090c4b5e57af72b
+
+pkgname = python-depth-anything-3
