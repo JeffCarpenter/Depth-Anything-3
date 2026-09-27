@@ -66,6 +66,8 @@ We release three series of models, each tailored for specific use cases in visua
 
 ### 🛠️ Codebase Features
 Our repository is designed to be a powerful and user-friendly toolkit for both practical application and future research.
+
+The primary Python API is `DepthAnything3`, an `nn.Module` defined in [`src/depth_anything_3/api.py`](src/depth_anything_3/api.py). The underlying network implementation, `DepthAnything3Net`, is in `src/depth_anything_3/model/da3.py`.
 - 🎨 **Interactive Web UI & Gallery**: Visualize model outputs and compare results with an easy-to-use Gradio-based web interface.
 - ⚡ **Flexible Command-Line Interface (CLI)**: Powerful and scriptable CLI for batch processing and integration into custom workflows.
 - 💾 **Multiple Export Formats**: Save your results in various formats, including `glb`, `npz`, depth images, `ply`, 3DGS videos, etc, to seamlessly connect with other tools.
