@@ -4,7 +4,7 @@
 Validate the approved tiny random Transformers SINQ smoke test; record the limits of applying it to DA3 and A-SINQ.
 
 ## Next Step
-Ladder approved; step 1 (da3mono-large fp32 parity) running via quant-my-repo/scripts/da3_sinq_parity.py; collect results, then steps 2-3.
+Step 1 PASSED (96/96 swapped, r=0.993, mean rel err 0.069%). Next: step 2 da3-small with exclusion list, then step 3 bf16 shim.
 
 ## Current Phase
 Phase 3

@@ -58,3 +58,7 @@
 - matmul has no dtype promotion: DA3's mixed autocast regions break a single compute_dtype; validate fp32 via direct net(x) first, then shim api.py.
 - Experiment ladder: (1) da3mono-large 96 Linears zero exclusions plain Mlp, quantize-all one subprocess, fp32 forward parity vs baseline; (2) da3-small with exclusion list; (3) bf16-shimmed api.inference.
 - Unknowns: vitg/xformers SwiGLU on CPU; gemlite+bf16 on CUDA (worker had no GPU — we have the RTX 3050 to test).
+## Ladder step 1 result (da3mono-large, PASSED)
+- 96/96 Linears swapped (0 exclusions needed), CPU fp32, random init. Baseline+quant outputs finite.
+- Parity: mean rel err 0.069%, p99 rel err 0.20%, Pearson r 0.9928. Swap 34.9s, quantized forward 7.5s.
+- Report: quant-my-repo/.planning/da3-sinq/parity-da3mono-large.json (script scripts/da3_sinq_parity.py, commit 0e36e8b).

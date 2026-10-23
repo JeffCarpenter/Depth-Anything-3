@@ -1,7 +1,7 @@
 # Maintainer: Jeff C <pub@jeffc.ca>
 pkgname=python-depth-anything-3-git
 _name=depth_anything_3
-pkgver=0.1.1.r43.g41ad16c
+pkgver=0.1.1.r44.gdfc4c42
 pkgrel=1
 pkgdesc="Foundation models for monocular and multi-view depth and geometry estimation"
 arch=('any')
